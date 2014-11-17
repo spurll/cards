@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+	<div class="text">
+		<div class="section">
+			<p><a href="{{url_for('browse')}}">Browse Cards</a></p>
+			<p><a href="{{url_for('search')}}">Search Cards</a></p>
+		</div>
+
+		<div class="section">
+			<p><a href="{{url_for('add_card')}}">Add Card</a></p>
+			<p><a href="{{url_for('add_set')}}">Add Set</a></p>
+		</div>
+
+		<div class="section">
+			<p><a href="{{url_for('update_db')}}">Update Card Database</a></p>
+			<p><a href="{{url_for('import_csv')}}">Import Collection from CSV</a></p>
+		</div>
+	</div>
+
+	<div class="back">
+	</div>
+{% endblock %}
+
