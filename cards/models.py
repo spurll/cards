@@ -39,7 +39,7 @@ class Set(db.Model):
     code = db.Column(db.String(3), index=True)
     name = db.Column(db.String(128), index=True, unique=True)
     alternate_name = db.Column(db.String(128), unique=True)
-    release_date db.Column(db.Date)
+    release_date = db.Column(db.Date)
     cards = db.relationship('Edition', backref='set', lazy='dynamic',
                             cascade='all, delete-orphan')
 
@@ -51,9 +51,11 @@ class Set(db.Model):
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), index=True, unique=True)
-    want = db.Column(db.Integer)
     color_byte = db.Column(db.Binary(1))
     type_byte = db.Column(db.Binary(1))
+    power = db.Column(db.Integer)
+    toughness = db.Column(db.Integer)
+    want = db.Column(db.Integer)
     editions = db.relationship('Edition', backref='card', lazy='dynamic',
                                cascade='all, delete-orphan')
 

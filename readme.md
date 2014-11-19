@@ -1,5 +1,5 @@
-Card Database
-=============
+Card Collector
+==============
 
 A web program (with a Flask and SQLite back-end) that keeps track of a Magic: The Gathering collection
 

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+	{% set page = 'browse' %}
+	<div class="sidebar">
+		{% include "sidebar.html" %}
+	</div>
+
+	<div class="submenu">
+		<div class="section"><p class="center heading">Filter</p></div>
+
+		<div class="section">
+			{% if colors %}
+				<p class="heading">Colour</p>
+				{% for color in colors %}
+					<p><a href="?color={{color}}">{{color}}</a></p>
+				{% endfor %}
+			{% endif %}
+		</div>
+
+		<div class="section">
+			{% if types %}
+				<p class="heading">Type</p>
+				{% for type in types %}
+					<p><a href="?type={{type}}">{{type}}</a></p>
+				{% endfor %}
+			{% endif %}
+		</div>
+
+		<div class="section">
+			{% if sets %}
+				<p class="heading">Set</p>
+				{% for set in sets %}
+					<p><a href="?set={{set}}">{{set}}</a></p>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="subcontent">
+		<table>
+			{% for section in sections %}
+				<tr><th colspan={{headers|length}}>{{section}}</th></tr>
+				<tr style="height: 30px;">{% for column in headers %}<th>{{column}}</th>{% endfor %}</tr>
+				{% for card in cards[section] %}
+					<tr>
+						{% for column in card %}
+							<td {% if headers[loop.index0] not in ['Card Name', 'Color', 'Type'] %} style="text-align: right" {% endif %}>{{column}}</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+				{% if not loop.last %}
+					<tr style="height: 40px;"><td colspan={{headers|length}}></td></tr>
+				{% endif %}
+			{% endfor %}
+		</table>
+	</div>
+{% endblock %}
+

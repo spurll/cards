@@ -6,11 +6,11 @@
 
 from argparse import ArgumentParser
 
-from tournament import app
+from cards import app
 
 
 if __name__ == '__main__':
-    description = "Runs the Flask server for the Magic tournament program."
+    description = "Runs the Flask server for the Magic collection DB."
     parser = ArgumentParser(description=description)
     parser.add_argument("-0", "--public", help="Makes the server world-"
                         "accessible by hosting at 0.0.0.0.",

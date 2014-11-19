@@ -12,17 +12,22 @@ from models import User, Set, Card, Edition
 from authenticate import authenticate
 
 
+COLORS = {'White', 'Blue', 'Black', 'Red', 'Green'}
+TYPES = {'Artifact', 'Creature', 'Enchantment', 'Instant', 'Land',
+         'Planeswalker', 'Sorcery', 'Tribal'}
+
+
 @app.route('/')
 @app.route('/index')
 def index():
-    return redirect(url_for("main"))
+    return redirect(url_for('browse'))
 
 
-@app.route('/main')
+@app.route('/browse')
 @login_required
-def main():
+def browse():
     """
-    Main menu for the tournament.
+    Browse collection alphabetically, or by set or release date.
     """
     user = g.user
 
@@ -30,7 +35,155 @@ def main():
     # CODE HERE
 
 
-    return render_template("main.html", title=title, user=user)
+#    sets = [s.name for s in Set.query.order_by(Set.release_date.desc())]
+    sets = ["Unlimited", "Beta", "Alpha"]
+    sections = sets
+    headers = ['Card Name', 'Color', 'Type', 'Mana Cost', 'P/T', 'Have', 'Need',
+               'Want']
+    cards = {
+                'Unlimited': [
+                    ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1],
+                    ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0],
+                ],
+                'Beta': [
+                    ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1],
+                    ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0],
+                ],
+                'Alpha': [
+                    ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1],
+                    ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0],
+                ]
+            }
+
+    title = 'Browse Collection'
+    return render_template('browse.html', title=title, user=user,
+                           colors=COLORS, types=TYPES, sets=sets,
+                           sections=sections, headers=headers, cards=cards)
+
+
+@app.route('/search')
+@login_required
+def search():
+    """
+    Search collection for a specific card.
+    """
+    user = g.user
+
+
+    # CODE HERE
+
+
+    title = "Search Collection"
+    return render_template("search.html", title=title, user=user)
+
+
+@app.route('/details')
+@login_required
+def details():
+    """
+    View card details.
+    """
+    user = g.user
+
+
+    # CODE HERE
+
+
+    title = card.name
+    return render_template("details.html", title=title, user=user)
+
+
+@app.route('/add/card')
+@login_required
+def add_card():
+    """
+    Add a card to the database (or if it exists in the DB, simply update the
+    number that you have/want).
+    """
+    user = g.user
+
+
+    # CODE HERE
+
+    # When you add a card, it should have a numeric field for how many you
+    # want, and numeric fields for EACH PRINTING indicating how many you have
+    # (defaulting to zero for each, and sorted by set release date).
+
+
+    title = card.name
+    return render_template("add_card.html", title=title, user=user)
+
+
+@app.route('/add/set')
+@login_required
+def add_set():
+    """
+    Adds a set/edition to the database. Should only be needed for sets that
+    are recently announced (and that have no printings yet). Spoiler stuff.
+    """
+    user = g.user
+
+
+    # CODE HERE
+
+    # We'll need some way to update information after printings and additional
+    # details are available.
+
+    title = card.name
+    return render_template("add_set.html", title=title, user=user)
+
+
+@app.route('/update/database')
+@login_required
+def update_db():
+    """
+    Pulls all cards that exist in DeckBrew into the local database.
+    """
+    user = g.user
+
+
+    # CODE HERE
+
+    # Probably needs some sort of asynchronous call...? This is definitely
+    # going to time out. But how do we make sure that other stuff won't
+    # interfere with the update?
+
+
+    title = "Update Database"
+    return render_template("update_db.html", title=title, user=user)
+
+
+@app.route('/import')
+@login_required
+def import_csv():
+    """
+    Imports an existing collection from a CSV file.
+    """
+    user = g.user
+
+
+    # CODE HERE
+
+
+    title = "Import Collection from CSV"
+    return render_template("import.html", title=title, user=user)
+
+
+@app.route('/export')
+@login_required
+def export_csv():
+    """
+    Exports the card DB collection to a CSV file. (Only exports cards with
+    "haves" or "wants".)
+    """
+    user = g.user
+
+
+    # CODE HERE
+
+
+    title = "Export Collection to CSV"
+    return render_template("export.html", title=title, user=user)
 
 
 @app.route('/login', methods=['GET', 'POST'])

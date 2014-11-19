@@ -1,6 +1,6 @@
 import ldap
 
-from tournament import app
+from cards import app
 from models import User
 
 

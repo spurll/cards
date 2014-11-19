@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 
-from tournament import db
+from cards import db
 
 db.create_all()
