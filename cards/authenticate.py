@@ -24,6 +24,7 @@ def authenticate(username, password):
             name = entry['cn'][0]
             id = entry['uid'][0]
 
+            print "Logging in user: {}, {}, {}".format(name, id, email)
             user = User(name=name, id=id, email=email)
 
     finally:

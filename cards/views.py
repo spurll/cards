@@ -23,42 +23,48 @@ def index():
     return redirect(url_for('browse'))
 
 
-@app.route('/browse')
+@app.route('/browse', methods=['GET'])
 @login_required
 def browse():
     """
     Browse collection alphabetically, or by set or release date.
     """
     user = g.user
+    sets = [s.name for s in Set.query.all()]
+    filters = {'color': request.args.get('color', COLORS),
+               'type': request.args.get('type', TYPES),
+               'set': request.args.get('set', sets)}
 
 
     # CODE HERE
 
 
-#    sets = [s.name for s in Set.query.order_by(Set.release_date.desc())]
-    sets = ["Unlimited", "Beta", "Alpha"]
-    sections = sets
-    headers = ['Card Name', 'Color', 'Type', 'Mana Cost', 'P/T', 'Have', 'Need',
-               'Want']
-    cards = {
-                'Unlimited': [
-                    ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1],
-                    ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0],
-                ],
-                'Beta': [
-                    ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1],
-                    ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0],
-                ],
-                'Alpha': [
-                    ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1],
-                    ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0],
-                ]
-            }
 
+    # BY DEFAULT, BROWSE SHOULD ONLY DISPLAY CARDS YOU HAVE OR WANT
+
+
+    # FILTERS NOT USED YET.
+#    cards = [Edition.query.filter(Edition.
+
+#    cards = [Card.query.filter(!Card.colors().isdisjoint(filters['color']) &
+#                               !Card.types().isdisjoint(filters['type']) &
+#                               !Card.sets
+    sets = [s.name for s in Set.query.order_by(Set.release_date.desc())]
+
+    # Dummy Data
+    sets = ["Unlimited", "Beta", "Alpha"]
+    cards = { 'Unlimited': [ ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1], ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0], ], 'Beta': [ ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1], ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0], ], 'Alpha': [ ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1], ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0], ] }
+    # Dummy Data
+
+    sections = sets
+    headers = ['Name', 'Color', 'Type', 'Cost', 'P/T', 'Have', 'Need', 'Want']
+
+    print [i for cat in filters.values() for i in cat]
     title = 'Browse Collection'
     return render_template('browse.html', title=title, user=user,
                            colors=COLORS, types=TYPES, sets=sets,
-                           sections=sections, headers=headers, cards=cards)
+                           sections=sections, headers=headers, cards=cards,
+                           filters=[i for cat in filters.values() for i in cat])
 
 
 @app.route('/search')

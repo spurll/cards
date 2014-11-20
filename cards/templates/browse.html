@@ -12,7 +12,7 @@
 			{% if colors %}
 				<p class="heading">Colour</p>
 				{% for color in colors %}
-					<p><a href="?color={{color}}">{{color}}</a></p>
+					<p><a {% if color in filters %}class="active"{% endif %} href="?color={{color}}">{{color}}</a></p>
 				{% endfor %}
 			{% endif %}
 		</div>
@@ -21,7 +21,7 @@
 			{% if types %}
 				<p class="heading">Type</p>
 				{% for type in types %}
-					<p><a href="?type={{type}}">{{type}}</a></p>
+					<p><a {% if type in filters %}class="active"{% endif %} href="?type={{type}}">{{type}}</a></p>
 				{% endfor %}
 			{% endif %}
 		</div>
@@ -30,7 +30,7 @@
 			{% if sets %}
 				<p class="heading">Set</p>
 				{% for set in sets %}
-					<p><a href="?set={{set}}">{{set}}</a></p>
+					<p><a {% if set in filters %}class="active"{% endif %} href="?set={{set}}">{{set}}</a></p>
 				{% endfor %}
 			{% endif %}
 		</div>

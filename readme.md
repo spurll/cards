@@ -1,7 +1,7 @@
 Card Collector
 ==============
 
-A web program (with a Flask and SQLite back-end) that keeps track of a Magic: The Gathering collection
+A web program (with a Flask and SQLite back-end) that keeps track of a Magic: The Gathering collection.
 
 Usage
 =====
@@ -49,11 +49,12 @@ The following features may be implemented in the future:
 * Ability to add "alternate names" for sets (e.g., "Ravnica" for "Ravnica: City of Guilds", "Magic 2015" for "Magic 2015 Core Set", "Commander 2014" for "Commander 2014 Edition", "Sixth Edition" for "Classic Sixth Edition", etc.)
 * Lists and searches can page through multiple results
 * Ability to update card info, which will search DeckBrew for information to update it (called automatically when you view details if some of the details are missing?)
+* Mouse-over popups of the card image.
 
 Known Bugs
 ----------
 
-None
+* Currently all users share the same collection. Might not be worth fixing.
 
 DeckBrew API
 ============
