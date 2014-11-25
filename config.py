@@ -13,3 +13,7 @@ LDAP_SEARCH_BASE = "ou=People,dc=invenia,dc=ca"
 
 ADMIN_USERS = ["gem.newman"]
 
+COLORS = ['Colorless', 'White', 'Blue', 'Black', 'Red', 'Green']
+TYPES = ['Artifact', 'Creature', 'Enchantment', 'Instant', 'Land',
+         'Planeswalker', 'Sorcery', 'Tribal']
+

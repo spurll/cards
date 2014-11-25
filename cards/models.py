@@ -1,12 +1,12 @@
 from cards import app, db
 
 
-COLOR_MASK = {'White': 0x01, 'Blue': 0x02, 'Black': 0x04, 'Red': 0x08, 'Green':
-              0x10}
+COLOR_MASK = {'White': 0x01, 'Blue': 0x02, 'Black': 0x04, 'Red': 0x08,
+              'Green': 0x10}
 
-TYPE_MASK = {'Artifact': 0x01, 'Creature': 0x02, 'Land': 0x04, 'Instant': 0x08,
-             'Sorcery': 0x10, 'Enchantment': 0x20, 'Tribal': 0x40,
-             'Planeswalker': 0x80}
+TYPE_MASK = {'Tribal': 0x01, 'Instant': 0x02, 'Sorcery': 0x04,
+             'Artifact': 0x08, 'Enchantment': 0x10, 'Land': 0x20,
+             'Creature': 0x40, 'Planeswalker': 0x80}
 
 
 def byte_to_set(mask, b):
@@ -14,7 +14,7 @@ def byte_to_set(mask, b):
 
 
 def set_to_byte(mask, s):
-    return reduce(lambda x, y: x | mask[y], s, 0x00)
+    return reduce(lambda x, y: x | mask.get(y, 0x00), s, 0x00)
 
 
 class User(db.Model):
@@ -65,14 +65,15 @@ class Set(db.Model):
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), index=True, unique=True)
-    color_byte = db.Column(db.Binary(1))
-    type_byte = db.Column(db.Binary(1))
-    power = db.Column(db.Integer)
-    toughness = db.Column(db.Integer)
+    color_byte = db.Column(db.SmallInteger)
+    type_byte = db.Column(db.SmallInteger)
+    cost = db.Column(db.String(20))
+    power = db.Column(db.SmallInteger)
+    toughness = db.Column(db.SmallInteger)
+    want = db.Column(db.Integer, default=0)
+    important = db.Column(db.Boolean, default=False)
     editions = db.relationship('Edition', backref='card', lazy='dynamic',
                                cascade='all, delete-orphan')
-    want = db.relationship('Want', backref='card', uselist=False,
-                           cascade='all, delete-orphan')
 
     def __repr__(self):
         return '<Card {}>'.format(self.id)
@@ -81,16 +82,13 @@ class Card(db.Model):
         return '<Card {}>'.format(self.name)
 
     def have(self):
-        return sum(e.have() for e in self.editions)
-
-    def want(self):
-        return self.want.number
+        return sum(e.have for e in self.editions)
 
     def need(self):
-        return max(self.want() - self.have(), 0)
+        return max(self.want - self.have(), 0)
 
     def extra(self):
-        return max(self.have() - self.want(), 0)
+        return max(self.have() - self.want, 0)
 
     def colors(self):
         return byte_to_set(COLOR_MASK, self.color_byte)
@@ -98,16 +96,28 @@ class Card(db.Model):
     def types(self):
         return byte_to_set(TYPE_MASK, self.type_byte)
 
+    def color(self):
+        colors = self.colors()
+        if len(colors) == 0:
+            return 'Colorless'
+        elif len(colors) > 1:
+            return 'Mulitcolored'
+        else:
+            return colors.pop()
+
+    def type(self):
+        return " ".join(self.types())
+
 
 # Represents a specific printing of a specific card.
 class Edition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     multiverse_id = db.Column(db.Integer, index=True, unique=True)
+    collector_number = db.Column(db.Integer, index=True)
     rarity = db.Column(db.String(1))
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'))
     set_id = db.Column(db.Integer, db.ForeignKey('set.id'))
-    collection = db.relationship('Collection', backref = 'edition',
-                                 uselist=False, cascade='all, delete-orphan')
+    have = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return '<Edition {}>'.format(self.id)
@@ -119,25 +129,3 @@ class Edition(db.Model):
         return ('https://image.deckbrew.com/mtg/multiverseid/{}.jpg'
                 .format(self.multiverse_id))
 
-    def have(self):
-        return self.have.number
-
-
-# Represent what specific cards you have.
-class Collection(db.Model):
-    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'),
-                           primary_key=True)
-    number = db.Column(db.Integer)
-
-    def __repr__(self):
-        return '<Collection {}>'.format(self.id)
-
-
-# Represents what cards you're looking for.
-class Want(db.Model):
-    card_id = db.Column(db.Integer, db.ForeignKey('card.id'), primary_key=True)
-    number = db.Column(db.Integer)
-    important = db.Column(db.Boolean, default=False)
-
-    def __repr__(self):
-        return '<Want {}>'.format(self.id)

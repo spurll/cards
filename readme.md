@@ -34,6 +34,8 @@ Feature Requests
 
 The following features may be implemented in the future:
 
+* It would be best to write the backend as a stand-alone that just returns the values, and have the views just call those functions (they only worry about formatting). That way a Python CLI is possible.
+
 * When adding a card, the set should be a drop-down list in order of release date (with sets with no date at the bottom)
 * Ability to add cards that are not yet listed in DeckBrew or on MagicCards.info (spoiler cards)
  * Should probably be implemented by first adding the set, and then associating the card with it in some way outisde of DeckBrew

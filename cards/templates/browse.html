@@ -9,10 +9,16 @@
 		<div class="section"><p class="center heading">Filter</p></div>
 
 		<div class="section">
+			<p class="heading">Collection</p>
+			<p><a {% if filters['have'] %}class="active"{% endif %} href="?have=1">Cards Owned</a></p>
+			<p><a {% if filters['need'] %}class="active"{% endif %} href="?need=1">Cards Wanted</a></p>
+		</div>
+
+		<div class="section">
 			{% if colors %}
 				<p class="heading">Colour</p>
 				{% for color in colors %}
-					<p><a {% if color in filters %}class="active"{% endif %} href="?color={{color}}">{{color}}</a></p>
+					<p><a {% if color in filters['color'] %}class="active"{% endif %} href="?color={{color}}">{{color}}</a></p>
 				{% endfor %}
 			{% endif %}
 		</div>
@@ -21,7 +27,7 @@
 			{% if types %}
 				<p class="heading">Type</p>
 				{% for type in types %}
-					<p><a {% if type in filters %}class="active"{% endif %} href="?type={{type}}">{{type}}</a></p>
+					<p><a {% if type in filters['type'] %}class="active"{% endif %} href="?type={{type}}">{{type}}</a></p>
 				{% endfor %}
 			{% endif %}
 		</div>
@@ -30,7 +36,7 @@
 			{% if sets %}
 				<p class="heading">Set</p>
 				{% for set in sets %}
-					<p><a {% if set in filters %}class="active"{% endif %} href="?set={{set}}">{{set}}</a></p>
+					<p><a {% if set in filters['set'] %}class="active"{% endif %} href="?set={{set}}">{{set}}</a></p>
 				{% endfor %}
 			{% endif %}
 		</div>

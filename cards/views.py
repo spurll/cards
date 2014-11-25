@@ -6,15 +6,10 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 import ldap
 
-from cards import app, db, lm
+from cards import db, app, api, lm
 from forms import LoginForm, AddForm
 from models import User, Set, Card, Edition
 from authenticate import authenticate
-
-
-COLORS = {'White', 'Blue', 'Black', 'Red', 'Green'}
-TYPES = {'Artifact', 'Creature', 'Enchantment', 'Instant', 'Land',
-         'Planeswalker', 'Sorcery', 'Tribal'}
 
 
 @app.route('/')
@@ -29,42 +24,28 @@ def browse():
     """
     Browse collection alphabetically, or by set or release date.
     """
-    user = g.user
-    sets = [s.name for s in Set.query.all()]
-    filters = {'color': request.args.get('color', COLORS),
-               'type': request.args.get('type', TYPES),
-               'set': request.args.get('set', sets)}
+    user = g.user   # NOT USED.
 
+    filters = {'color': request.args.get('color', []),
+               'type': request.args.get('type', []),
+               'set': request.args.get('set', []),
+               'have': request.args.get('have', None),
+               'need': request.args.get('need', None)}
 
-    # CODE HERE
+    # Add filters for cards you have and cards you need.
 
+    cards = api.browse(filters=filters, group='set')
 
+    sets = [s.name for s in Set.query.order_by(Set.release_date.desc(),
+            Set.name)]
 
-    # BY DEFAULT, BROWSE SHOULD ONLY DISPLAY CARDS YOU HAVE OR WANT
+    headers = ['Card Name', 'Color', 'Type', 'Cost', 'P/T', 'Have', 'Want', 'Need']
 
-
-    # FILTERS NOT USED YET.
-#    cards = [Edition.query.filter(Edition.
-
-#    cards = [Card.query.filter(!Card.colors().isdisjoint(filters['color']) &
-#                               !Card.types().isdisjoint(filters['type']) &
-#                               !Card.sets
-    sets = [s.name for s in Set.query.order_by(Set.release_date.desc())]
-
-    # Dummy Data
-    sets = ["Unlimited", "Beta", "Alpha"]
-    cards = { 'Unlimited': [ ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1], ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0], ], 'Beta': [ ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1], ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0], ], 'Alpha': [ ['Mox Jet', 'Colorless', 'Artifact', '0', '', 1, 0, 1], ['Mox Sapphire', 'Colorless', 'Artifact', '0', '', 1, 1, 0], ] }
-    # Dummy Data
-
-    sections = sets
-    headers = ['Name', 'Color', 'Type', 'Cost', 'P/T', 'Have', 'Need', 'Want']
-
-    print [i for cat in filters.values() for i in cat]
     title = 'Browse Collection'
-    return render_template('browse.html', title=title, user=user,
-                           colors=COLORS, types=TYPES, sets=sets,
-                           sections=sections, headers=headers, cards=cards,
-                           filters=[i for cat in filters.values() for i in cat])
+    return render_template('browse.html', title=title, user=user, sets=sets,
+                           sections=cards.keys(), colors=app.config['COLORS'],
+                           types=app.config['TYPES'], headers=headers,
+                           cards=cards, filters=filters)
 
 
 @app.route('/search')
