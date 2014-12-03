@@ -38,20 +38,16 @@ The following features may be implemented in the future:
 
 * When adding a card, the set should be a drop-down list in order of release date (with sets with no date at the bottom)
 * Ability to add cards that are not yet listed in DeckBrew or on MagicCards.info (spoiler cards)
- * Should probably be implemented by first adding the set, and then associating the card with it in some way outisde of DeckBrew
+ * Should probably be implemented by first adding the set, and then associating the card with it in some way outside of DeckBrew
  * Ability to edit the name of those cards, as sometimes they're inaccurate
-* Various viewing options:
- * View sets (with columns as in a spreadsheet) chronologically
- * View cards by set
- * Toggle to ignore cards you have "enough" of
- * Field to ignore cards you have at least X of
 * Search by card name
 * Ability to view card details (including what editions there are, oracle text, image, etc.) via lookup of the card on DeckBrew with its multiverse ID (if it has one)
 * Batch import of information from a CSV file
 * Ability to add "alternate names" for sets (e.g., "Ravnica" for "Ravnica: City of Guilds", "Magic 2015" for "Magic 2015 Core Set", "Commander 2014" for "Commander 2014 Edition", "Sixth Edition" for "Classic Sixth Edition", etc.)
 * Lists and searches can page through multiple results
 * Ability to update card info, which will search DeckBrew for information to update it (called automatically when you view details if some of the details are missing?)
-* Mouse-over popups of the card image.
+* Mouse-over popups of the card image
+* Use pages of results for browsing/searching (you'll need to also return how many pages of results there are)
 
 Known Bugs
 ----------

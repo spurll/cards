@@ -1,10 +1,11 @@
 from collections import OrderedDict
+import re
 
 from cards import db
 from models import User, Set, Card, Edition, set_to_byte, COLOR_MASK, TYPE_MASK
 
 
-def fetch(filters={}, group=None, sort=None):
+def fetch(filters={}, group=None, sort=None, page_size=None, page_number=1):
     """
     Returns all cards matching the filters provided. If the optional group
     argument is specified, an OrderedDict grouping the results by the specified
@@ -16,7 +17,7 @@ def fetch(filters={}, group=None, sort=None):
     """
 
     if not sort:
-        sort = [Set.release_date.desc(), Edition.collector_number]
+        sort = [Set.release_date.desc(), Edition.collector_number, Card.name]
 
     # Define query and filters.
     query = Edition.query.join(Card).join(Set)
@@ -50,17 +51,24 @@ def fetch(filters={}, group=None, sort=None):
         # Only return editions of cards printed in the sets listed.
         where.append(Set.name.in_(filters['set']))
 
-    if filters.get('have'):
-        # Only return editions where you have at least the number listed.
-        where.append(Edition.have >= filters['have'])
+    if 'Owned' in filters.get('collection', []):
+        # Only return editions where you have at least one copy of the card.
+        where.append(Edition.have >= 1)
 
-    # Query.
-    result = query.filter(*where).order_by(*sort).all()
+    # Apply filters and ordering to query.
+    query = query.filter(*where).order_by(*sort)
+
+    # Apply pagination functions.
+    if page_size:
+        query = query.limit(page_size).offset(page_size * (page_number - 1))
+
+    # Execute query.
+    result = query.all()
 
     # Finish filtering by cards you need (difficult to do in the query itself).
-    if filters.get('need'):
-        # Only return cards where you need at least the number listed.
-        result = filter(lambda e: e.card.need() >= filters['need'], result)
+    if 'Wanted' in filters.get('collection', []):
+        # Only return cards where you need at least one of the cards.
+        result = filter(lambda e: e.card.need() >= 1, result)
 
     # Group.
     if group:
@@ -91,12 +99,12 @@ def fetch(filters={}, group=None, sort=None):
     return cards
 
 
-def browse(filters={}, group=None, sort=None):
+def browse(filters={}, group=None, sort=None, page_size=None, page_number=1):
     """
-    Like fetch, only it returns dicts instead of Edition objects.
+    Like fetch, only it returns tuples instead of Edition objects.
     """
 
-    cards = fetch(filters, group, sort)
+    cards = fetch(filters, group, sort, page_size, page_number)
 
     if not group:
         cards = [to_tuple(c) for c in cards]
@@ -112,7 +120,8 @@ def to_dict(edition):
             'set': edition.set.name,
             'color': edition.card.color(),
             'type': edition.card.type(),
-            'cost': edition.card.cost,
+            'cost': mana_symbol_tags(edition.card.cost)
+                if edition.card.cost else '',
             'power': edition.card.power,
             'toughness': edition.card.toughness,
             'have': edition.have,
@@ -125,10 +134,22 @@ def to_tuple(edition):
     return (edition.card.name,
             edition.card.color(),
             edition.card.type(),
-            edition.card.cost,
+            mana_symbol_tags(edition.card.cost) if edition.card.cost else '',
             '{}/{}'.format(edition.card.power, edition.card.toughness)
                 if edition.card.power else '',
             edition.have,
             edition.card.want,
             edition.card.need())
+
+
+def mana_symbol_tags(cost):
+    """
+    Converts a string containing mana symbol information into a series of HTML
+    <img> tags representing that cost.
+    """
+
+    pattern = r'{([^/]?)/?([^/]?)}'
+    replacement =  r'<img src="/static/\1\2.png">'
+    mana_tag = re.sub(pattern, replacement, cost)
+    return '<div class="mana">{}</div>'.format(mana_tag)
 

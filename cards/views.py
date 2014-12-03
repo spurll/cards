@@ -4,10 +4,11 @@
 
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
+from urllib import urlencode
 import ldap
 
 from cards import db, app, api, lm
-from forms import LoginForm, AddForm
+from forms import LoginForm, BrowseForm, AddForm
 from models import User, Set, Card, Edition
 from authenticate import authenticate
 
@@ -18,7 +19,7 @@ def index():
     return redirect(url_for('browse'))
 
 
-@app.route('/browse', methods=['GET'])
+@app.route('/browse', methods=['GET', 'POST'])
 @login_required
 def browse():
     """
@@ -26,26 +27,22 @@ def browse():
     """
     user = g.user   # NOT USED.
 
-    filters = {'color': request.args.get('color', []),
-               'type': request.args.get('type', []),
-               'set': request.args.get('set', []),
-               'have': request.args.get('have', None),
-               'need': request.args.get('need', None)}
+    form = BrowseForm()
 
-    # Add filters for cards you have and cards you need.
+    filters = {'color': form.color.data.split('|') if form.color.data else [],
+               'type': form.type.data.split('|') if form.type.data else [],
+               'set': form.set.data.split('|') if form.set.data else [],
+               'collection': form.collection.data.split('|')
+                             if form.collection.data else []}
+
+    # Consider sending (and receiving) page numbers to keep queries shorter.
 
     cards = api.browse(filters=filters, group='set')
-
-    sets = [s.name for s in Set.query.order_by(Set.release_date.desc(),
-            Set.name)]
-
-    headers = ['Card Name', 'Color', 'Type', 'Cost', 'P/T', 'Have', 'Want', 'Need']
+    headers, submenu = build_submenu(filters)
 
     title = 'Browse Collection'
-    return render_template('browse.html', title=title, user=user, sets=sets,
-                           sections=cards.keys(), colors=app.config['COLORS'],
-                           types=app.config['TYPES'], headers=headers,
-                           cards=cards, filters=filters)
+    return render_template('browse.html', title=title, user=user, form=form,
+                           headers=headers, submenu=submenu, cards=cards)
 
 
 @app.route('/search')
@@ -228,4 +225,48 @@ def load_user(id):
 @app.before_request
 def before_request():
     g.user = current_user
+
+
+def build_submenu(filters):
+    """
+    Defines what sub-menu items will be displayed in the "Browse" submenu.
+    """
+
+    headers = [
+        'Card Name', 'Color', 'Type', 'Cost', 'P/T', 'Have', 'Want', 'Need'
+    ]
+
+    submenu =  [
+        {
+            'title': 'Collection',
+            'items': [
+                {'label': label, 'active': label in filters['collection']}
+                for label in ['Owned', 'Wanted']
+            ]
+        },
+        {
+            'title': 'Color',
+            'items': [
+                {'label': label, 'active': label in filters['color']}
+                for label in app.config['COLORS']
+            ]
+        },
+        {
+            'title': 'Type',
+            'items': [
+                {'label': label, 'active': label in filters['type']}
+                for label in app.config['TYPES']
+            ]
+        },
+        {
+            'title': 'Set',
+            'items': [
+                {'label': label, 'active': label in filters['set']}
+                for label in [s.name for s in
+                    Set.query.order_by(Set.release_date.desc(), Set.name)]]
+        },
+    ]
+
+    return headers, submenu
+
 

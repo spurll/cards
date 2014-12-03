@@ -1,5 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
+	<script type="text/javascript">
+		function addFilter(id, item) {
+			// Adds the selected filter to the appropriate hidden form field then submits.
+			var field = $("#" + id).val();
+			if (field)
+				var list = field.split("|");
+			else
+				var list = [];
+
+			// Check to see if the item is active. If so remove it. Otherwise, add it.
+			var index = list.indexOf(item);
+			if (index > -1)
+				list.splice(index, 1);
+			else
+				list.push(item);
+
+			// Update the form field.
+			$("#" + id).val(list.join("|"));
+
+			// Submit the form.
+			$("#browse").submit()
+		}
+	</script>
+
+	<form action="" method="POST" name="browse" id="browse">
+		{{form.collection}}
+		{{form.color}}
+		{{form.type}}
+		{{form.set}}
+	</form>
+
 	{% set page = 'browse' %}
 	<div class="sidebar">
 		{% include "sidebar.html" %}
@@ -7,50 +38,26 @@
 
 	<div class="submenu">
 		<div class="section"><p class="center heading">Filter</p></div>
-
-		<div class="section">
-			<p class="heading">Collection</p>
-			<p><a {% if filters['have'] %}class="active"{% endif %} href="?have=1">Cards Owned</a></p>
-			<p><a {% if filters['need'] %}class="active"{% endif %} href="?need=1">Cards Wanted</a></p>
-		</div>
-
-		<div class="section">
-			{% if colors %}
-				<p class="heading">Colour</p>
-				{% for color in colors %}
-					<p><a {% if color in filters['color'] %}class="active"{% endif %} href="?color={{color}}">{{color}}</a></p>
+		{% for section in submenu %}
+			<div class="section">
+				<p class="heading">{{section['title']}}</p>
+				{% for item in section['items'] %}
+					<p><a {% if item['active'] %}class="active"{% endif %} href="javascript: addFilter('{{section['title'] | lower}}', '{{item['label']}}')">{{item['label']}}</a></p>
 				{% endfor %}
-			{% endif %}
-		</div>
-
-		<div class="section">
-			{% if types %}
-				<p class="heading">Type</p>
-				{% for type in types %}
-					<p><a {% if type in filters['type'] %}class="active"{% endif %} href="?type={{type}}">{{type}}</a></p>
-				{% endfor %}
-			{% endif %}
-		</div>
-
-		<div class="section">
-			{% if sets %}
-				<p class="heading">Set</p>
-				{% for set in sets %}
-					<p><a {% if set in filters['set'] %}class="active"{% endif %} href="?set={{set}}">{{set}}</a></p>
-				{% endfor %}
-			{% endif %}
+			</div>
+		{% endfor %}
 		</div>
 	</div>
 
 	<div class="subcontent">
 		<table>
-			{% for section in sections %}
+			{% for section, rows in cards.iteritems() %}
 				<tr><th colspan={{headers|length}}>{{section}}</th></tr>
 				<tr style="height: 30px;">{% for column in headers %}<th>{{column}}</th>{% endfor %}</tr>
-				{% for card in cards[section] %}
+				{% for row in rows %}
 					<tr>
-						{% for column in card %}
-							<td {% if headers[loop.index0] not in ['Card Name', 'Color', 'Type'] %} style="text-align: right" {% endif %}>{{column}}</td>
+						{% for column in row %}
+						<td style="{% if headers[loop.index0] not in ['Card Name', 'Color', 'Type'] %}text-align: right;{% endif %}">{{column|safe}}</td>
 						{% endfor %}
 					</tr>
 				{% endfor %}
