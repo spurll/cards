@@ -17,9 +17,13 @@ class BrowseForm(Form):
     collection = HiddenField(default='')
 
 
+class DetailsForm(Form):
+    pass
+
+
 class AddForm(Form):
     name = TextField("Card Name", validators=[Required()])
-    set = TextField("Set", validators=[Required()])
-    have = IntegerField("Have", default=0, validators=[NumberRange(min=0)])
-    want = IntegerField("Want", default=0, validators=[NumberRange(min=0)])
+    #set = TextField("Set", validators=[Required()])
+    #have = IntegerField("Have", default=0, validators=[NumberRange(min=0)])
+    #want = IntegerField("Want", default=0, validators=[NumberRange(min=0)])
 

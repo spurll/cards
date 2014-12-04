@@ -36,8 +36,11 @@
 		{% include "sidebar.html" %}
 	</div>
 
-	<div class="submenu">
-		<div class="section"><p class="center heading">Filter</p></div>
+	<div class="sidebar">
+		<div class="section">
+			<p class="center heading">Filter</p>
+		</div>
+
 		{% for section in submenu %}
 			<div class="section">
 				<p class="heading">{{section['title']}}</p>
@@ -46,7 +49,6 @@
 				{% endfor %}
 			</div>
 		{% endfor %}
-		</div>
 	</div>
 
 	<div class="subcontent">

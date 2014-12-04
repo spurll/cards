@@ -34,7 +34,8 @@ Feature Requests
 
 The following features may be implemented in the future:
 
-* It would be best to write the backend as a stand-alone that just returns the values, and have the views just call those functions (they only worry about formatting). That way a Python CLI is possible.
+* Add cards
+* View card details
 
 * When adding a card, the set should be a drop-down list in order of release date (with sets with no date at the bottom)
 * Ability to add cards that are not yet listed in DeckBrew or on MagicCards.info (spoiler cards)
@@ -48,6 +49,8 @@ The following features may be implemented in the future:
 * Ability to update card info, which will search DeckBrew for information to update it (called automatically when you view details if some of the details are missing?)
 * Mouse-over popups of the card image
 * Use pages of results for browsing/searching (you'll need to also return how many pages of results there are)
+
+* Test for split cards, DFCs, and level up creatures (power/toughness, price, type, etc.)
 
 Known Bugs
 ----------

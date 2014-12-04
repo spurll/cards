@@ -1,3 +1,5 @@
+import requests
+
 from cards import app, db
 
 
@@ -72,6 +74,7 @@ class Card(db.Model):
     toughness = db.Column(db.SmallInteger)
     want = db.Column(db.Integer, default=0)
     important = db.Column(db.Boolean, default=False)
+    uncertain = db.Column(db.Boolean, default=False)
     editions = db.relationship('Edition', backref='card', lazy='dynamic',
                                cascade='all, delete-orphan')
 
@@ -108,6 +111,9 @@ class Card(db.Model):
     def type(self):
         return " ".join(self.types())
 
+    def editions_by_release(self):
+        return self.editions.join(Set).order_by(Set.release_date.desc())
+
 
 # Represents a specific printing of a specific card.
 class Edition(db.Model):
@@ -128,4 +134,23 @@ class Edition(db.Model):
     def image_url(self):
         return ('https://image.deckbrew.com/mtg/multiverseid/{}.jpg'
                 .format(self.multiverse_id))
+
+    def deckbrew_url(self):
+        return ('https://api.deckbrew.com/mtg/cards?multiverseid={}'
+                .format(self.multiverse_id))
+
+    def price(self):
+        p = None
+        r = requests.get(self.deckbrew_url())
+        j = r.json()
+
+        if j and (r.status_code == requests.codes.ok):
+            e = [e for e in j[0].get('editions')
+                 if e.get('multiverse_id') == self.multiverse_id]
+            if e:
+                p = e[0].get('price', dict()).get('median')
+                if p:
+                    p = float(p) / 100.0
+
+        return p
 

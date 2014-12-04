@@ -1,3 +1,4 @@
+from flask import url_for
 from collections import OrderedDict
 import re
 
@@ -99,7 +100,8 @@ def fetch(filters={}, group=None, sort=None, page_size=None, page_number=1):
     return cards
 
 
-def browse(filters={}, group=None, sort=None, page_size=None, page_number=1):
+def browse(filters={}, group=None, sort=None, page_size=None, page_number=1,
+           web=False):
     """
     Like fetch, only it returns tuples instead of Edition objects.
     """
@@ -107,39 +109,81 @@ def browse(filters={}, group=None, sort=None, page_size=None, page_number=1):
     cards = fetch(filters, group, sort, page_size, page_number)
 
     if not group:
-        cards = [to_tuple(c) for c in cards]
+        cards = [edition_to_tuple(c, web) for c in cards]
     else:
         for key, value in cards.iteritems():
-            cards[key] = [to_tuple(c) for c in value]
+            cards[key] = [edition_to_tuple(c, web) for c in value]
 
     return cards
 
 
-def to_dict(edition):
-    return {'name': edition.card.name,
-            'set': edition.set.name,
-            'color': edition.card.color(),
-            'type': edition.card.type(),
-            'cost': mana_symbol_tags(edition.card.cost)
-                if edition.card.cost else '',
-            'power': edition.card.power,
-            'toughness': edition.card.toughness,
+def details(name, web=False):
+    """
+    Takes a card name and returns the details in a dict. Some data comes from
+    the DB, but more is fetched from the internet.
+    """
+
+    card = Card.query.filter(Card.name == name).first()
+
+    if card:
+        card = {
+            'name': card.name,
+            'color': card.color(),
+            'type': card.type(),
+            'cost': mana_symbol_tags(card.cost) if web else card.cost,
+            'power': card.power,
+            'toughness': card.toughness,
+            'want': card.want,
+            'have': card.have(),
+            'need': card.need(),
+            'important': card.important,
+            'uncertain': card.uncertain,
+            'editions': [
+                {
+                    'set': edition.set.name,
+                    'have': edition.have,
+                    'collector_number': edition.collector_number,
+                    'rarity': edition.rarity,
+                    'price': edition.price(),
+                    'image_url': edition.image_url()
+                }
+                for edition in card.editions_by_release().all()
+            ]
+        }
+
+    return card
+
+
+def edition_to_dict(edition, web=False):
+    """
+    Returns a dictionary for the details view.
+    """
+
+    name = link_card_name(edition.card.name) if web else edition.card.name
+    cost = mana_symbol_tags(edition.card.cost) if web else edition.card.cost
+
+    return {'set': edition.set.name,
             'have': edition.have,
-            'want': edition.card.want,
-            'need': edition.card.need()}
+            'image_url': edition.image_url()}
 
 
-def to_tuple(edition):
+def edition_to_tuple(edition, web=False):
+    """
+    Returns a row for the browse view.
+    """
+
+    name = link_card_name(edition.card.name) if web else edition.card.name
+    cost = mana_symbol_tags(edition.card.cost) if web else edition.card.cost
+    pt = ('{}/{}'.format(edition.card.power, edition.card.toughness)
+          if edition.card.power else '')
+
     # Does not include set.
-    return (edition.card.name,
-            edition.card.color(),
-            edition.card.type(),
-            mana_symbol_tags(edition.card.cost) if edition.card.cost else '',
-            '{}/{}'.format(edition.card.power, edition.card.toughness)
-                if edition.card.power else '',
-            edition.have,
-            edition.card.want,
-            edition.card.need())
+    return (name, edition.card.color(), edition.card.type(), cost, pt,
+            edition.have, edition.card.want, edition.card.need())
+
+
+def link_card_name(name):
+    return '<a href="{}">{}</a>'.format(url_for('details', card=name), name)
 
 
 def mana_symbol_tags(cost):
@@ -148,8 +192,11 @@ def mana_symbol_tags(cost):
     <img> tags representing that cost.
     """
 
-    pattern = r'{([^/]?)/?([^/]?)}'
-    replacement =  r'<img src="/static/\1\2.png">'
-    mana_tag = re.sub(pattern, replacement, cost)
-    return '<div class="mana">{}</div>'.format(mana_tag)
+    if cost:
+        pattern = r'{([^/]?)/?([^/]?)}'
+        replacement =  r'<img src="/static/\1\2.png">'
+        mana_tag = re.sub(pattern, replacement, cost)
+        return '<div class="mana">{}</div>'.format(mana_tag)
+    else:
+        return ''
 

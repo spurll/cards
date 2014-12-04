@@ -3,15 +3,14 @@
 		<title>{% if title %}{{title}} | {% endif %}Card Collector</title>
 
 		<style type="text/css">
-			.full { font-family: serif; padding: 20px 30px; left: 0px; top: 0px; margin: auto; }
-			.content { font-family: serif; padding: 20px 30px; position: fixed; left: 200px; top: 50px; }
-			.subcontent { font-family: serif; padding: 20px 30px; position: fixed; left: 400px; top: 50px; }
-			.sidebar { font-famiy: serif; padding: 20px 30px; position: fixed; width: 200px; left: 0px; top: 50px; }
-			.submenu { font-famiy: serif; padding: 20px 30px; position: fixed; width: 200px; left: 200px; top: 50px; }
+			.content { overflow-y: auto; display: inline-block; vertical-align: top; }
+			.subcontent { overflow-y: auto; display: inline-block; vertical-align: top; }
 
-			.title { font-family: serif; font-variant: small-caps; font-size: 150%; text-align: center; padding-top: 5px; padding-bottom: 10px; margin: auto; height: 30px; }
-			.heading { font-family: serif; font-variant: small-caps; font-weight: bold; }
-			.user { font-family: serif; text-align: right; padding-top: 20px; padding-right: 30px; position: fixed; width: 20%; right: 0px; top: 0px; }
+			.sidebar { overflow-y: auto; height: 100%; width: 200px; display: inline-block; vertical-align: top; }
+
+			.title { font-variant: small-caps; font-size: 150%; text-align: center; padding-top: 5px; padding-bottom: 10px; margin: auto; height: 30px; width: 100% }
+			.heading { font-variant: small-caps; font-weight: bold; }
+			.user { text-align: right; position: fixed; width: 20%; right: 20px; top: 30px; }
 			.messages { font-style: italic; text-align: center; }
 
 			a:link { text-decoration: none; color: #aaaaaa; }
@@ -23,19 +22,26 @@
 			.active { font-weight: bold; color: #dddddd !important; }
 			.center { text-align: center; }
 
+			.important { font-weight: bold; }
+			.uncertain { font-style: italic; }
+
 			.mana { height: 15px; }
 			.mana img { height: 100%; width: auto; }
+
+			.card_image { height: 300px; }
+			.card_image img { height: 100%; width: auto; }
 
 			.wide { width: 65%; top: 0px; }
 			.narrow { width: 35%; top: 0px; }
 			.right { float: right; text-align: right; }
 
-			body { color: #ffffff; background-color: #222222; overflow-y:auto; }
+			body { font-family: serif; color: #ffffff; background-color: #222222; margin: 20px 30px; overflow: hidden; }
 			p { margin: 5px; }
 			table { margin-top: 5px; margin-bottom: 10px; }
 			th { font-variant: small-caps; padding: 0px 10px; }
 			td { padding: 0px 10px; }
 
+			form { margin: 0px; }
 			input[type="text"] { width: 100%; }
 			input[type="password"] { width: 100%; }
 			input { color: #000000; }
@@ -51,13 +57,7 @@
 			</div>
 		{% endif %}
 
-		{% if title %}
-			<div class="title">{{title}}</div>
-		{% endif %}
-
-		{% if round %}
-			<div class="heading">Round {{round}}</div>
-		{% endif %}
+		<div class="title">{{title}}</div>
 
 		{% with messages = get_flashed_messages() %}
 			<div class="messages">

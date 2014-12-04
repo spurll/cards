@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+	<script type="text/javascript">
+		function update() {
+			// Submit the form.
+			$("#details").submit()
+		}
+	</script>
+
+	{% set page = 'details' %}
+	<div class="sidebar">
+		{% include "sidebar.html" %}
+	</div>
+
+
+
+	<!--
+	Allows you to edit how many you have/want for each printing.
+    Button to save have/want.
+    Button to update card (fetching all editions,  (then refresh the page).
+    Button to manually add an edition (select from dropdown).
+	Button to remove from collection.
+	-->
+
+
+
+	<div class="content">
+		<form action="" method="POST" name="details" id="details">
+			<table>
+				<tr><th>Name</th><td>{{card['name']}}</td></tr>
+				<tr>
+					<th>Color</th><td>{{card['color']}}</td>
+					<th>{% if card['cost'] %}Mana Cost{% endif %}</th><td>{% if card['cost'] %}{{card['cost']|safe}}{% endif %}</td>
+				</tr>
+				<tr>
+					<th>Types</th><td>{{card['type']}}</td>
+					<th>{% if card['power'] %}Power/Toughness{% endif %}</th><td>{% if card['power'] %}{{card['power']}}/{{card['toughness']}}{% endif %}</td>
+				</tr>
+				<tr><th {% if card.important %}class="important"{% endif %}>{{form.want.label}}</th><td>{{form.want}}</td><th>{{form.important.label}}</th><td>{{form.important}}</td></tr>
+				<tr><th {% if card.uncertain %}class="uncertain"{% endif %}>Have</th><td>{{card.have}}</td><th>{{form.uncertain.label}}</th><td>{{form.uncertain}}</td></tr>
+
+				<tr style="height: 40px;"><td colspan="4"></td></tr>
+				<tr><td colspan="4">
+						<!-- links -->
+				</td></tr>
+				<tr style="height: 40px;"><td colspan="4"></td></tr>
+
+				{% for edition in card['editions'] %}
+					<tr>
+						<th colspan="2">{{edition['set']}}</th>
+						<td colspan="2" rowspan="5"><div class="card_image"><img src="{{edition['image_url']}}" /></div></td>
+					</tr>
+
+					{% if not loop.last %}
+						<tr style="height: 40px;"><td colspan={{headers|length}}></td></tr>
+					{% endif %}
+				{% endfor %}
+			</table>
+		</form>
+	</div>
+{% endblock %}
+

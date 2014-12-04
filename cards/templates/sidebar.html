@@ -1,20 +1,21 @@
-<div class="section">
-	<p class="center heading">Menu</p>
-</div>
+<div class="sidebar">
+	<div class="section">
+		<p class="center heading">Menu</p>
+	</div>
 
-<div class="section">
-	<p><a {% if page == 'browse' %}class="active"{% endif %} href="{{url_for('browse')}}">Browse</a></p>
-	<p><a {% if page == 'search' %}class="active"{% endif %} href="{{url_for('search')}}">Search</a></p>
-</div>
+	<div class="section">
+		<p><a {% if page == 'browse' %}class="active"{% endif %} href="{{url_for('browse')}}">Browse</a></p>
+		<p><a {% if page == 'search' %}class="active"{% endif %} href="{{url_for('search')}}">Search</a></p>
+	</div>
 
-<div class="section">
-	<p><a {% if page == 'add_card' %}class="active"{% endif %} href="{{url_for('add_card')}}">Add Card</a></p>
-	<p><a {% if page == 'add_set' %}class="active"{% endif %} href="{{url_for('add_set')}}">Add Set</a></p>
-</div>
+	<div class="section">
+		<p><a {% if page == 'add_card' %}class="active"{% endif %} href="{{url_for('add_card')}}">Add Card</a></p>
+		<p><a {% if page == 'add_set' %}class="active"{% endif %} href="{{url_for('add_set')}}">Add Set</a></p>
+	</div>
 
-<div class="section">
-	<p><a {% if page == 'update_db' %}class="active"{% endif %} href="{{url_for('update_db')}}">Update Card DB</a></p>
-	<p><a {% if page == 'import_csv' %}class="active"{% endif %} href="{{url_for('import_csv')}}">Import Collection</a></p>
-	<p><a {% if page == 'export_csv' %}class="active"{% endif %} href="{{url_for('export_csv')}}">Export Collection</a></p>
+	<div class="section">
+		<p><a {% if page == 'update_db' %}class="active"{% endif %} href="{{url_for('update_db')}}">Update Card DB</a></p>
+		<p><a {% if page == 'import_csv' %}class="active"{% endif %} href="{{url_for('import_csv')}}">Import Collection</a></p>
+		<p><a {% if page == 'export_csv' %}class="active"{% endif %} href="{{url_for('export_csv')}}">Export Collection</a></p>
+	</div>
 </div>
-

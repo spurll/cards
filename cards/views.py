@@ -4,11 +4,14 @@
 
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
+from wtforms import BooleanField
+from wtforms.fields.html5 import IntegerField
+from wtforms.validators import NumberRange
 from urllib import urlencode
 import ldap
 
 from cards import db, app, api, lm
-from forms import LoginForm, BrowseForm, AddForm
+from forms import LoginForm, BrowseForm, DetailsForm, AddForm
 from models import User, Set, Card, Edition
 from authenticate import authenticate
 
@@ -37,7 +40,7 @@ def browse():
 
     # Consider sending (and receiving) page numbers to keep queries shorter.
 
-    cards = api.browse(filters=filters, group='set')
+    cards = api.browse(filters=filters, group='set', web=True)
     headers, submenu = build_submenu(filters)
 
     title = 'Browse Collection'
@@ -61,7 +64,7 @@ def search():
     return render_template("search.html", title=title, user=user)
 
 
-@app.route('/details')
+@app.route('/details', methods=['GET', 'POST'])
 @login_required
 def details():
     """
@@ -69,12 +72,34 @@ def details():
     """
     user = g.user
 
+    name = request.args.get('card')
+    if not name:
+        flash('No card specified.')
+        return redirect(url_for('index'))
 
-    # CODE HERE
+    card = api.details(name=name, web=True)
 
+    if not card:
+        flash('No details for {} found in the database.'.format(name))
+        return redirect(url_for('index'))
 
-    title = card.name
-    return render_template("details.html", title=title, user=user)
+    # We need to duplicate the "have" field for each printing of the card. This
+    # necessitates making a new class every time.
+    class CurrentDetailsForm(DetailsForm):
+        want = IntegerField("Want", default=card['want'],
+                            validators=[NumberRange(min=0)])
+        important = BooleanField("Important", default=card['important'])
+        uncertain = BooleanField("Uncertain", default=card['uncertain'])
+
+    for edition in card['editions']:
+        field = IntegerField(edition['set'], default=edition['have'],
+                             validators=[NumberRange(min=0)])
+        setattr(CurrentDetailsForm, edition['set'], field)
+
+    form = CurrentDetailsForm()
+    title = card['name']
+    return render_template("details.html", title=title, user=user, form=form,
+                           card=card)
 
 
 @app.route('/add/card')
@@ -92,6 +117,17 @@ def add_card():
     # When you add a card, it should have a numeric field for how many you
     # want, and numeric fields for EACH PRINTING indicating how many you have
     # (defaulting to zero for each, and sorted by set release date).
+
+
+    # First, you enter a card name.
+    # If there is one match, it will select that one.
+    # Otherwise, you'll get a list of matches, and you'll have to select one.
+
+    # That one will be added (or all will be added) and you're taken to the
+    # details page.
+
+    # Then you'll get the details view for that card, where you can edit the
+    # number you have/want.
 
 
     title = card.name
@@ -268,5 +304,4 @@ def build_submenu(filters):
     ]
 
     return headers, submenu
-
 
