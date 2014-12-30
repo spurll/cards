@@ -175,10 +175,10 @@ def edition_to_tuple(edition, web=False):
     name = link_card_name(edition.card.name) if web else edition.card.name
     cost = mana_symbol_tags(edition.card.cost) if web else edition.card.cost
     pt = ('{}/{}'.format(edition.card.power, edition.card.toughness)
-          if edition.card.power else '')
+          if edition.card.power is not None else '')
 
     # Does not include set.
-    return (name, edition.card.color(), edition.card.type(), cost, pt,
+    return (name, edition.card.color(), edition.card.type(), cost,
             edition.have, edition.card.want, edition.card.need())
 
 

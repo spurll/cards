@@ -3,8 +3,10 @@
 		<title>{% if title %}{{title}} | {% endif %}Card Collector</title>
 
 		<style type="text/css">
-			.content { overflow-y: auto; display: inline-block; vertical-align: top; }
-			.subcontent { overflow-y: auto; display: inline-block; vertical-align: top; }
+			.window { margin: auto; width: 1000px; }
+			.full { margin: auto; width: 400px; }
+			.content { overflow-y: auto; width: 790px; height: 100%; display: inline-block; vertical-align: top; }
+			.subcontent { overflow-y: auto; width: 590px; height: 100%; display: inline-block; vertical-align: top; }
 
 			.sidebar { overflow-y: auto; height: 100%; width: 200px; display: inline-block; vertical-align: top; }
 
@@ -35,19 +37,20 @@
 			.narrow { width: 35%; top: 0px; }
 			.right { float: right; text-align: right; }
 
-			body { font-family: serif; color: #ffffff; background-color: #222222; margin: 20px 30px; overflow: hidden; }
+			body { font-family: serif; color: #ffffff; background-color: #222222; margin: 20px 30px; }
 			p { margin: 5px; }
 			table { margin-top: 5px; margin-bottom: 10px; }
 			th { font-variant: small-caps; padding: 0px 10px; }
 			td { padding: 0px 10px; }
 
 			form { margin: 0px; }
+			input[type="number"] { width: 35px; text-align: right; }
 			input[type="text"] { width: 100%; }
 			input[type="password"] { width: 100%; }
 			input { color: #000000; }
 		</style>
-		<link rel="shortcut icon" href="/static/icon.png"/>
-		<script type="text/javascript" src="/static/jquery-2.1.1.js"></script>
+		<link rel="shortcut icon" href="{{url_for('static', filename='icon.png')}}"/>
+		<script type="text/javascript" src="{{url_for('static', 'jquery-2.1.1.js')}}"></script>
     </head>
 
 	<body>
@@ -69,7 +72,9 @@
 			</div>
 		{% endwith %}
 
-		{% block content %}
-		{% endblock %}
+		<div class="window">
+			{% block content %}
+			{% endblock %}
+		</div>
 	</body>
 </html>

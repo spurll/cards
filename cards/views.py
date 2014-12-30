@@ -92,8 +92,8 @@ def details():
         uncertain = BooleanField("Uncertain", default=card['uncertain'])
 
     for edition in card['editions']:
-        field = IntegerField(edition['set'], default=edition['have'],
-                             validators=[NumberRange(min=0)])
+        field = IntegerField(id=edition['set'], default=edition['have'],
+                             validators=[NumberRange(min=0)], label='Have')
         setattr(CurrentDetailsForm, edition['set'], field)
 
     form = CurrentDetailsForm()
@@ -269,7 +269,7 @@ def build_submenu(filters):
     """
 
     headers = [
-        'Card Name', 'Color', 'Type', 'Cost', 'P/T', 'Have', 'Want', 'Need'
+        'Card Name', 'Color', 'Type', 'Cost', 'H', 'W', 'N'
     ]
 
     submenu =  [

@@ -150,7 +150,7 @@ class Edition(db.Model):
             if e:
                 p = e[0].get('price', dict()).get('median')
                 if p:
-                    p = float(p) / 100.0
+                    p = '${:,.2f}'.format(float(p) / 100.0)
 
         return p
 

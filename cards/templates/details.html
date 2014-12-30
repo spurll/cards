@@ -27,28 +27,61 @@
 	<div class="content">
 		<form action="" method="POST" name="details" id="details">
 			<table>
-				<tr><th>Name</th><td>{{card['name']}}</td></tr>
 				<tr>
-					<th>Color</th><td>{{card['color']}}</td>
-					<th>{% if card['cost'] %}Mana Cost{% endif %}</th><td>{% if card['cost'] %}{{card['cost']|safe}}{% endif %}</td>
+					<td colspan="2">{{card['name']}}</td>
+					<td></td>
+					<td colspan="2" style="text-align: right;">{% if card['cost'] %}{{card['cost']|safe}}{% endif %}</td>
 				</tr>
 				<tr>
-					<th>Types</th><td>{{card['type']}}</td>
-					<th>{% if card['power'] %}Power/Toughness{% endif %}</th><td>{% if card['power'] %}{{card['power']}}/{{card['toughness']}}{% endif %}</td>
+					<td colspan="2">{{card['type']}}</td>
+					<td></td>
+					<td colspan="2" style="text-align: right;">{% if card['power'] %}{{card['power']}}/{{card['toughness']}}{% endif %}</td>
 				</tr>
-				<tr><th {% if card.important %}class="important"{% endif %}>{{form.want.label}}</th><td>{{form.want}}</td><th>{{form.important.label}}</th><td>{{form.important}}</td></tr>
-				<tr><th {% if card.uncertain %}class="uncertain"{% endif %}>Have</th><td>{{card.have}}</td><th>{{form.uncertain.label}}</th><td>{{form.uncertain}}</td></tr>
 
-				<tr style="height: 40px;"><td colspan="4"></td></tr>
-				<tr><td colspan="4">
+				<tr style="height: 40px;"><td colspan="5"></td></tr>
+				<tr>
+					<td {% if card.important %}class="important"{% endif %}>{{form.want.label}}</td>
+					<td style="text-align: right;">{{form.want}}</td>
+					<td></td>
+					<td>{{form.important.label}}</td>
+					<td style="text-align: right;">{{form.important}}</td>
+				</tr>
+				<tr>
+					<td {% if card.uncertain %}class="uncertain"{% endif %}>Have</td>
+					<td style="text-align: right;">{{card.have}}</td>
+					<td></td>
+					<td>{{form.uncertain.label}}</td>
+					<td style="text-align: right;">{{form.uncertain}}</td>
+				</tr>
+
+				<tr style="height: 40px;"><td colspan="5"></td></tr>
+				<tr>
+					<td colspan="5">
 						<!-- links -->
-				</td></tr>
-				<tr style="height: 40px;"><td colspan="4"></td></tr>
+					</td>
+				</tr>
 
+				<tr style="height: 40px;"><td colspan="5"></td></tr>
 				{% for edition in card['editions'] %}
 					<tr>
-						<th colspan="2">{{edition['set']}}</th>
-						<td colspan="2" rowspan="5"><div class="card_image"><img src="{{edition['image_url']}}" /></div></td>
+						<td colspan="2">{{edition['set']}}</td>
+						<td colspan="3" rowspan="5"><div class="card_image"><img src="{{edition['image_url']}}" /></div></td>
+					</tr>
+					<tr>
+						<td>Collector Number</td>
+						<td>{{edition['collector_number']}}</td>
+					</tr>
+					<tr>
+						<td>Rarity</td>
+						<td>{{edition['rarity']}}</td>
+					</tr>
+					<tr>
+						<td>Price</td>
+						<td>{{edition['price']}}</td>
+					</tr>
+					<tr>
+						<td {% if card.important %}class="important"{% endif %}>{{form[edition['set']].label}}</td>
+						<td style="text-align: right;">{{form[edition['set']]}}</td>
 					</tr>
 
 					{% if not loop.last %}
