@@ -17,3 +17,4 @@ COLORS = ['Colorless', 'White', 'Blue', 'Black', 'Red', 'Green']
 TYPES = ['Artifact', 'Creature', 'Enchantment', 'Instant', 'Land',
          'Planeswalker', 'Sorcery', 'Tribal']
 
+DEFAULT_WANT = 4

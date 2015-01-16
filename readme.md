@@ -32,30 +32,29 @@ Bugs and Feature Requests
 Feature Requests
 ----------------
 
-The following features may be implemented in the future:
+Short-term goals:
 
 * Add cards
-* View card details
+* Batch import of information from a CSV file
+* Search by card name
+* Ability to update card info, which will search DeckBrew for information to update it
+* Test for split cards, DFCs, and level up creatures (power/toughness, price, type, etc.)
 
-* When adding a card, the set should be a drop-down list in order of release date (with sets with no date at the bottom)
+Long-term goals (features that may be implemented in the future):
+
 * Ability to add cards that are not yet listed in DeckBrew or on MagicCards.info (spoiler cards)
  * Should probably be implemented by first adding the set, and then associating the card with it in some way outside of DeckBrew
  * Ability to edit the name of those cards, as sometimes they're inaccurate
-* Search by card name
-* Ability to view card details (including what editions there are, oracle text, image, etc.) via lookup of the card on DeckBrew with its multiverse ID (if it has one)
-* Batch import of information from a CSV file
 * Ability to add "alternate names" for sets (e.g., "Ravnica" for "Ravnica: City of Guilds", "Magic 2015" for "Magic 2015 Core Set", "Commander 2014" for "Commander 2014 Edition", "Sixth Edition" for "Classic Sixth Edition", etc.)
-* Lists and searches can page through multiple results
-* Ability to update card info, which will search DeckBrew for information to update it (called automatically when you view details if some of the details are missing?)
-* Mouse-over popups of the card image
 * Use pages of results for browsing/searching (you'll need to also return how many pages of results there are)
-
-* Test for split cards, DFCs, and level up creatures (power/toughness, price, type, etc.)
+* Mouse-over popups of the card image
 
 Known Bugs
 ----------
 
-* Currently all users share the same collection. Might not be worth fixing.
+* There's still a problem in the HTML that causes the page to be slightly too tall (so it scrolls a little even when it shouldn't)
+* TCGPlayer killed DeckBrew integration, so prices are all gone. Might have to scrape pages like this: http://shop.tcgplayer.com/magic/product/show?ProductName=life%20//%20death
+* Currently all users share the same collection (might not be worth fixing)
 
 DeckBrew API
 ============

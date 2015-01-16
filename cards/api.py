@@ -1,9 +1,12 @@
 from flask import url_for
 from collections import OrderedDict
-import re
+import re, requests
 
 from cards import db
 from models import User, Set, Card, Edition, set_to_byte, COLOR_MASK, TYPE_MASK
+
+
+BASE_REQUEST = 'https://api.deckbrew.com/mtg/cards'
 
 
 def fetch(filters={}, group=None, sort=None, page_size=None, page_number=1):
@@ -152,6 +155,93 @@ def details(name, web=False):
         }
 
     return card
+
+
+def find_card(name):
+    """
+    Searches DeckBrew for cards that match the specified name. If there is an
+    exact match among the cards (e.g., the search was for "Shock", which
+    returns a bunch of results as well as that specific card) return ONLY the
+    exact match. If there's no exact match, return all of them.
+    """
+    cards = []
+
+    name = unicode(name.lower()).replace('aether', u'\xe6ther')
+
+    split = name.split('//').strip()
+
+
+    request = BASE_REQUEST + '?name=' + name
+
+
+
+    # NEEDS TO HANDLE SPLIT CARDS!
+    # To do so, look up one side, get the multiverse ID, look up all cards with
+    # that multiverse ID (which is for a specific printing), and construct a
+    # name with the two "sides" of the card that show up ("a" side then "b"
+    # side).
+    # How will you do exact matches?
+
+
+
+    r = requests.get(request)
+    j = r.json()
+
+    if j and (r.status_code == requests.codes.ok):
+        cards = [c.get('name') for c in j]
+
+        if (len(cards) > 1) and (name.lower() in [c.lower() for c in cards]):
+            cards = [next(c for c in cards if c.lower() == name.lower())]
+
+    return cards
+
+
+def add_card(name, want=None, have=[]):
+    """
+    Adds a card to the database.
+    """
+    name = unicode(name.lower()).replace('aether', u'\xe6ther')
+
+
+
+    # NEEDS TO HANDLE SPLIT CARDS!
+
+
+
+    # If you add a card that already exists, it will still set the want number
+    # and fetch and update all printings.
+
+    # If card search returns more than one result (that isn't exact), kill it.
+
+    # Use the 'have' field (containing tuples of set names and amounts you
+    # have of that set) for importing CSVs.
+
+    pass
+
+
+def import_csv(f):
+    """
+    Takes a file name (or open file?) and imports it using multiple calls to
+    the add_card function.
+    """
+
+    # "Want" should be defined as the sum of the "want" values for all
+    # editions.
+
+    pass
+
+
+def export_csv(f):
+    """
+    Exports the entire DB to a CSV file for easy backup.
+    """
+
+    # Should assign "want" values such that they fit with the editions and all
+    # add up to the total want value. (Probably just assign it to the latest
+    # printing, then set all others to zero? Or something more complicated.)
+
+    pass
+
 
 
 def edition_to_dict(edition, web=False):

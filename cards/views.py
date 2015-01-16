@@ -54,10 +54,13 @@ def search():
     """
     Search collection for a specific card.
     """
-    user = g.user
+    user = g.user   # NOT USED.
 
 
     # CODE HERE
+
+    # Bottom part of the page is just the browse page, but with a search bar at
+    # the top.
 
 
     title = "Search Collection"
@@ -70,7 +73,7 @@ def details():
     """
     View card details.
     """
-    user = g.user
+    user = g.user   # NOT USED.
 
     name = request.args.get('card')
     if not name:
@@ -102,36 +105,47 @@ def details():
                            card=card)
 
 
-@app.route('/add/card')
+@app.route('/add/card', methods=['GET', 'POST'])
 @login_required
 def add_card():
     """
     Add a card to the database (or if it exists in the DB, simply update the
-    number that you have/want).
+    number that you have/want). If you add a card that already exists, it will
+    still set the want number and fetch and update all printings.
     """
     user = g.user
 
+    cards = []
 
-    # CODE HERE
+    # First, you enter a card name (and numeric field for how many you want).
+    form = AddForm()
+    if form.is_submitted():
+        if form.validate_on_submit():
+            # Look for the specified card.
+            cards = api.find_card(form.name.data)
 
-    # When you add a card, it should have a numeric field for how many you
-    # want, and numeric fields for EACH PRINTING indicating how many you have
-    # (defaulting to zero for each, and sorted by set release date).
+            if not cards:
+                # No cards were found. Warn, and have the user try again.
+                flash('No cards found matching "{}".'.format(form.data.name))
 
+            else:
+                # Success! Exactly one card was found! Add it, then redirect.
+                try:
+                    api.add_card(cards[0], want=form.want.data)
+                    return redirect(url_for('details', card=cards[0]))
 
-    # First, you enter a card name.
-    # If there is one match, it will select that one.
-    # Otherwise, you'll get a list of matches, and you'll have to select one.
+                except Exception as e:
+                    flash('Error adding card: {}'.format(e))
 
-    # That one will be added (or all will be added) and you're taken to the
-    # details page.
+        else:
+            flash('Error: ' + form.errors)
+            print('Unable to validate. Error: ' + form.errors)
 
-    # Then you'll get the details view for that card, where you can edit the
-    # number you have/want.
-
-
-    title = card.name
-    return render_template("add_card.html", title=title, user=user)
+    # If you're here, either you haven't specified a card to add yet, or you're
+    # selecting a card from among a list of possible matches.
+    title = "Add Card"
+    return render_template("add.html", title=title, user=user, form=form,
+                           cards=cards)
 
 
 @app.route('/add/set')
@@ -150,7 +164,7 @@ def add_set():
     # details are available.
 
     title = card.name
-    return render_template("add_set.html", title=title, user=user)
+    return render_template("set.html", title=title, user=user)
 
 
 @app.route('/update/database')

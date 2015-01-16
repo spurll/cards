@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+	<script type="text/javascript">
+		function addFilter(id, item) {
+			// Adds the selected filter to the appropriate hidden form field then submits.
+			var field = $("#" + id).val();
+			if (field)
+				var list = field.split("|");
+			else
+				var list = [];
+
+			// Check to see if the item is active. If so remove it. Otherwise, add it.
+			var index = list.indexOf(item);
+			if (index > -1)
+				list.splice(index, 1);
+			else
+				list.push(item);
+
+			// Update the form field.
+			$("#" + id).val(list.join("|"));
+
+			// Submit the form.
+			$("#browse").submit()
+		}
+	</script>
+
+
+	WHEN YOU CLICK ON ONE OF THE OPTION LINKS, IT SHOULD CHANGE THE VALUE OF THE FORM FIELD AND JUST RE-POST
+
+
+	<form action="" method="POST" name="browse" id="browse">
+		{{form.collection}}
+		{{form.color}}
+		{{form.type}}
+		{{form.set}}
+	</form>
+
+	{% set page = 'browse' %}
+	<div class="sidebar">
+		{% include "sidebar.html" %}
+	</div>
+
+	<div class="sidebar">
+		<div class="section">
+			<p class="center heading">Filter</p>
+		</div>
+
+		{% for section in submenu %}
+			<div class="section">
+				<p class="heading">{{section['title']}}</p>
+				{% for item in section['items'] %}
+					<p><a {% if item['active'] %}class="active"{% endif %} href="javascript: addFilter('{{section['title'] | lower}}', '{{item['label']}}')">{{item['label']}}</a></p>
+				{% endfor %}
+			</div>
+		{% endfor %}
+	</div>
+
+	<div class="subcontent">
+		<table>
+			{% for section, rows in cards.iteritems() %}
+				<tr><th colspan={{headers|length}}>{{section}}</th></tr>
+				<tr style="height: 30px;">{% for column in headers %}<th>{{column}}</th>{% endfor %}</tr>
+				{% for row in rows %}
+					<tr>
+						{% for column in row %}
+						<td style="{% if headers[loop.index0] not in ['Card Name', 'Color', 'Type'] %}text-align: right;{% endif %}">{{column|safe}}</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+				{% if not loop.last %}
+					<tr style="height: 40px;"><td colspan={{headers|length}}></td></tr>
+				{% endif %}
+			{% endfor %}
+		</table>
+	</div>
+{% endblock %}
+
