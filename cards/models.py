@@ -6,6 +6,7 @@ from cards import app, db
 COLOR_MASK = {'White': 0x01, 'Blue': 0x02, 'Black': 0x04, 'Red': 0x08,
               'Green': 0x10}
 
+# Should have 'Conspiracy' in here, but I don't want to add another byte...
 TYPE_MASK = {'Tribal': 0x01, 'Instant': 0x02, 'Sorcery': 0x04,
              'Artifact': 0x08, 'Enchantment': 0x10, 'Land': 0x20,
              'Creature': 0x40, 'Planeswalker': 0x80}
@@ -70,8 +71,8 @@ class Card(db.Model):
     color_byte = db.Column(db.SmallInteger)
     type_byte = db.Column(db.SmallInteger)
     cost = db.Column(db.String(20))
-    power = db.Column(db.SmallInteger)
-    toughness = db.Column(db.SmallInteger)
+    power = db.Column(db.String(3))
+    toughness = db.Column(db.String(3))
     want = db.Column(db.Integer, default=0)
     important = db.Column(db.Boolean, default=False)
     uncertain = db.Column(db.Boolean, default=False)
@@ -118,7 +119,7 @@ class Card(db.Model):
 # Represents a specific printing of a specific card.
 class Edition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    multiverse_id = db.Column(db.Integer, index=True, unique=True)
+    multiverse_id = db.Column(db.Integer, index=True)
     collector_number = db.Column(db.Integer, index=True)
     rarity = db.Column(db.String(1))
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'))

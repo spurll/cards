@@ -35,6 +35,9 @@ Feature Requests
 Short-term goals:
 
 * Add cards
+* Increment function (takes card, set, and number default: 1); can decrement if passed -1
+* Ability to filter by rarity, certainty, and priority too
+* Ability to increment (or decrement) number of a card printing from the browse view
 * Batch import of information from a CSV file
 * Search by card name
 * Ability to update card info, which will search DeckBrew for information to update it
@@ -42,6 +45,8 @@ Short-term goals:
 
 Long-term goals (features that may be implemented in the future):
 
+* "Add Set" searches the set and adds all cards with add_card (can be set to add only uncommons+, rares+, etc.; by default doesn't add basic land)
+* Ability to delete a card (wholesale) from the DB (takes all editions with it)
 * Ability to add cards that are not yet listed in DeckBrew or on MagicCards.info (spoiler cards)
  * Should probably be implemented by first adding the set, and then associating the card with it in some way outside of DeckBrew
  * Ability to edit the name of those cards, as sometimes they're inaccurate
@@ -53,8 +58,9 @@ Known Bugs
 ----------
 
 * There's still a problem in the HTML that causes the page to be slightly too tall (so it scrolls a little even when it shouldn't)
-* TCGPlayer killed DeckBrew integration, so prices are all gone. Might have to scrape pages like this: http://shop.tcgplayer.com/magic/product/show?ProductName=life%20//%20death
+* TCGPlayer killed DeckBrew integration, so prices are all gone. Should still be able to scrape pages from the DeckBrew store_url field (such as http://shop.tcgplayer.com/magic/mirrodin/lightning-greaves)
 * Currently all users share the same collection (might not be worth fixing)
+* It's possible that very common, short names won't return results when api.find_card is called (because DeckBrew will only return the first 100 items, and the one we're looking for might not be in the list)
 
 DeckBrew API
 ============
