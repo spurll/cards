@@ -8,12 +8,12 @@ from wtforms import BooleanField
 from wtforms.fields.html5 import IntegerField
 from wtforms.validators import NumberRange
 from urllib import urlencode
-import ldap
+import ldap3
 
 from cards import db, app, api, lm
-from forms import LoginForm, BrowseForm, DetailsForm, AddForm
-from models import User, Set, Card, Edition
-from authenticate import authenticate
+from cards.forms import LoginForm, BrowseForm, DetailsForm, AddForm
+from cards.models import User, Set, Card, Edition
+from cards.authenticate import authenticate
 
 
 @app.route('/')
@@ -237,15 +237,12 @@ def login():
         username = form.username.data
         password = form.password.data
 
-        try:
-            print "Logging in..."
-            user = authenticate(username, password)
-        except ldap.INVALID_CREDENTIALS:
-            user = None
+        print('Logging in...')
+        user = authenticate(username, password)
 
         if not user:
-            print "Login failed."
-            flash("Login failed.")
+            print('Login failed.')
+            flash('Login failed.')
             return render_template('login.html', title="Log In", form=form)
 
         if user and user.is_authenticated():

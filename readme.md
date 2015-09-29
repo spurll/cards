@@ -1,7 +1,7 @@
 Card Collector
 ==============
 
-A web program (with a Flask and SQLite back-end) that keeps track of a Magic: The Gathering collection.
+A Python 3/Flask web program that keeps track of a Magic: The Gathering collection.
 
 Usage
 =====
@@ -14,12 +14,12 @@ Requirements
 * flask-wtf
 * flask-sqlalchemy
 * sqlalchemy
-* python-ldap
+* ldap3
 
 Configuration
 -------------
 
-Before starting the server for the first time, run `db_create.py`.
+You'll need to create a `config.py` file, which specifies details such as which LDAP server to use. A sample configuration file can be found at `sample_config.py`.
 
 Starting the Server
 -------------------
@@ -45,7 +45,7 @@ Short-term goals:
 
 Long-term goals (features that may be implemented in the future):
 
-* "Add Set" searches the set and adds all cards with add_card (can be set to add only uncommons+, rares+, etc.; by default doesn't add basic land)
+* "Add Set" searches the set and adds all cards with `add_card` (can be set to add only uncommons+, rares+, etc.; by default doesn't add basic land)
 * Ability to delete a card (wholesale) from the DB (takes all editions with it)
 * Ability to add cards that are not yet listed in DeckBrew or on MagicCards.info (spoiler cards)
  * Should probably be implemented by first adding the set, and then associating the card with it in some way outside of DeckBrew
@@ -58,9 +58,9 @@ Known Bugs
 ----------
 
 * There's still a problem in the HTML that causes the page to be slightly too tall (so it scrolls a little even when it shouldn't)
-* TCGPlayer killed DeckBrew integration, so prices are all gone. Should still be able to scrape pages from the DeckBrew store_url field (such as http://shop.tcgplayer.com/magic/mirrodin/lightning-greaves)
+* TCGPlayer killed DeckBrew integration, so prices are all gone. Should still be able to scrape pages from the DeckBrew `store_url` field (such as http://shop.tcgplayer.com/magic/mirrodin/lightning-greaves)
 * Currently all users share the same collection (might not be worth fixing)
-* It's possible that very common, short names won't return results when api.find_card is called (because DeckBrew will only return the first 100 items, and the one we're looking for might not be in the list)
+* It's possible that very common, short names won't return results when `api.find_card` is called (because DeckBrew will only return the first 100 items, and the one we're looking for might not be in the list)
 
 DeckBrew API
 ============

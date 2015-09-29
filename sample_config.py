@@ -1,18 +1,23 @@
 from os import urandom, path
 
 
+# Web Server
 CSRF_ENABLED = True
 SECRET_KEY = urandom(30)
 PROPAGATE_EXCEPTIONS = True
+REMEMBER_COOKIE_NAME = 'cards_token'    # Needs to be unique server-wide.
 
+# SQLAlchemy
 basedir = path.abspath(path.dirname(__file__))
-SQLALCHEMY_DATABASE_URI = "sqlite:///{}".format(path.join(basedir, "app.db"))
+SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(path.join(basedir, 'app.db'))
 
-LDAP_URI = "ldap://ec2-23-23-226-137.compute-1.amazonaws.com"
-LDAP_SEARCH_BASE = "ou=People,dc=invenia,dc=ca"
+# LDAP
+LDAP_URI = 'ldap://YOUR.LDAP.URI'
+LDAP_SEARCH_BASE = 'ou=????,dc=????,dc=????'
 
-ADMIN_USERS = ["gem.newman"]
+ADMIN_USERS = ['LDAP.USER.ID.HERE']
 
+# Magic
 COLORS = [
     'Colorless',
     'White',
@@ -34,4 +39,3 @@ TYPES = [
 ]
 
 DEFAULT_WANT = 4
-
