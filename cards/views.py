@@ -7,10 +7,9 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from wtforms import BooleanField
 from wtforms.fields.html5 import IntegerField
 from wtforms.validators import NumberRange
-from urllib import urlencode
 import ldap3
 
-from cards import db, app, api, lm
+from cards import db, app, controller, lm
 from cards.forms import LoginForm, BrowseForm, DetailsForm, AddForm
 from cards.models import User, Set, Card, Edition
 from cards.authenticate import authenticate
@@ -22,25 +21,31 @@ def index():
     return redirect(url_for('browse'))
 
 
+"""
+Browse collection alphabetically, or by set or release date.
+"""
 @app.route('/browse', methods=['GET', 'POST'])
 @login_required
 def browse():
-    """
-    Browse collection alphabetically, or by set or release date.
-    """
-    user = g.user   # NOT USED.
+    user = g.user   # TODO: NOT USED.
 
     form = BrowseForm()
 
-    filters = {'color': form.color.data.split('|') if form.color.data else [],
-               'type': form.type.data.split('|') if form.type.data else [],
-               'set': form.set.data.split('|') if form.set.data else [],
-               'collection': form.collection.data.split('|')
-                             if form.collection.data else []}
+    filters = {
+        'color': form.color.data.split('|') if form.color.data else [],
+        'type': form.type.data.split('|') if form.type.data else [],
+        'set': form.set.data.split('|') if form.set.data else [],
+        'collection': form.collection.data.split('|')
+             if form.collection.data else []
+    }
 
-    # Consider sending (and receiving) page numbers to keep queries shorter.
+    # TODO: Consider sending/receiving page numbers to keep queries shorter.
 
-    cards = api.browse(filters=filters, group='set', web=True)
+#    cards = {
+#        group: [c.tuple(True) for c in editions]
+#        for group, editions in controller.fetch(filters, 'set').items()
+#    }
+    cards = controller.fetch(filters, 'set')
     headers, submenu = build_submenu(filters)
 
     title = 'Browse Collection'
@@ -48,13 +53,13 @@ def browse():
                            headers=headers, submenu=submenu, cards=cards)
 
 
+"""
+Search collection for a specific card.
+"""
 @app.route('/search')
 @login_required
 def search():
-    """
-    Search collection for a specific card.
-    """
-    user = g.user   # NOT USED.
+    user = g.user   # TODO: NOT USED.
 
 
     # CODE HERE
@@ -67,20 +72,21 @@ def search():
     return render_template("search.html", title=title, user=user)
 
 
+"""
+View card details.
+"""
 @app.route('/details', methods=['GET', 'POST'])
 @login_required
 def details():
-    """
-    View card details.
-    """
-    user = g.user   # NOT USED.
+    user = g.user   # TODO: NOT USED.
 
     name = request.args.get('card')
     if not name:
         flash('No card specified.')
         return redirect(url_for('index'))
 
-    card = api.details(name=name, web=True)
+    # TODO: Add link to MagicCards.info.
+    card = Card.query.filter(Card.name == name).scalar().details(True)
 
     if not card:
         flash('No details for {} found in the database.'.format(name))
@@ -94,6 +100,7 @@ def details():
         important = BooleanField("Important", default=card['important'])
         uncertain = BooleanField("Uncertain", default=card['uncertain'])
 
+    # TODO: List price.
     for edition in card['editions']:
         field = IntegerField(id=edition['set'], default=edition['have'],
                              validators=[NumberRange(min=0)], label='Have')
@@ -105,14 +112,14 @@ def details():
                            card=card)
 
 
+"""
+Add a card to the database (or if it exists in the DB, simply update the number
+that you have/want). If you add a card that already exists, it will still set
+the want number and fetch and update all printings.
+"""
 @app.route('/add/card', methods=['GET', 'POST'])
 @login_required
 def add_card():
-    """
-    Add a card to the database (or if it exists in the DB, simply update the
-    number that you have/want). If you add a card that already exists, it will
-    still set the want number and fetch and update all printings.
-    """
     user = g.user
 
     cards = []
@@ -122,7 +129,7 @@ def add_card():
     if form.is_submitted():
         if form.validate_on_submit():
             # Look for the specified card.
-            cards = api.find_card(form.name.data)
+            cards = controller.find_card(form.name.data)
 
             if not cards:
                 # No cards were found. Warn, and have the user try again.
@@ -131,7 +138,7 @@ def add_card():
             else:
                 # Success! Exactly one card was found! Add it, then redirect.
                 try:
-                    api.add_card(cards[0], want=form.want.data)
+                    controller.add_card(cards[0], want=form.want.data)
                     return redirect(url_for('details', card=cards[0]))
 
                 except Exception as e:
@@ -148,13 +155,13 @@ def add_card():
                            cards=cards)
 
 
+"""
+Adds a set/edition to the database. Should only be needed for sets that are
+recently announced (and that have no printings yet). Spoiler stuff.
+"""
 @app.route('/add/set')
 @login_required
 def add_set():
-    """
-    Adds a set/edition to the database. Should only be needed for sets that
-    are recently announced (and that have no printings yet). Spoiler stuff.
-    """
     user = g.user
 
 
@@ -167,12 +174,12 @@ def add_set():
     return render_template("set.html", title=title, user=user)
 
 
+"""
+Pulls all cards that exist in DeckBrew into the local database.
+"""
 @app.route('/update/database')
 @login_required
 def update_db():
-    """
-    Pulls all cards that exist in DeckBrew into the local database.
-    """
     user = g.user
 
 
@@ -187,12 +194,12 @@ def update_db():
     return render_template("update_db.html", title=title, user=user)
 
 
+"""
+Imports an existing collection from a CSV file.
+"""
 @app.route('/import')
 @login_required
 def import_csv():
-    """
-    Imports an existing collection from a CSV file.
-    """
     user = g.user
 
 
@@ -203,13 +210,13 @@ def import_csv():
     return render_template("import.html", title=title, user=user)
 
 
+"""
+Exports the card DB collection to a CSV file. (Only exports cards with "haves"
+or "wants".)
+"""
 @app.route('/export')
 @login_required
 def export_csv():
-    """
-    Exports the card DB collection to a CSV file. (Only exports cards with
-    "haves" or "wants".)
-    """
     user = g.user
 
 
@@ -220,12 +227,12 @@ def export_csv():
     return render_template("export.html", title=title, user=user)
 
 
+"""
+Logs the user in using LDAP authentication.
+"""
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """
-    Logs the user in using LDAP authentication.
-    """
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index'))
 
     form = LoginForm()
@@ -245,7 +252,7 @@ def login():
             flash('Login failed.')
             return render_template('login.html', title="Log In", form=form)
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             db_user = User.query.get(user.id)
             if db_user is None:
                 db.session.add(user)
@@ -274,11 +281,10 @@ def before_request():
     g.user = current_user
 
 
+"""
+Defines what sub-menu items will be displayed in the "Browse" submenu.
+"""
 def build_submenu(filters):
-    """
-    Defines what sub-menu items will be displayed in the "Browse" submenu.
-    """
-
     headers = [
         'Card Name', 'Color', 'Type', 'Cost', 'H', 'W', 'N'
     ]

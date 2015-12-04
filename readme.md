@@ -15,6 +15,8 @@ Requirements
 * flask-sqlalchemy
 * sqlalchemy
 * ldap3
+* beautifulsoup4
+* python-dateutil
 
 Configuration
 -------------

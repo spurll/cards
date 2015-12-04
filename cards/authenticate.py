@@ -1,7 +1,7 @@
 from ldap3 import Server, Connection
 
-from tournament import app
-from tournament.models import User
+from cards import app
+from cards.models import User
 
 
 def authenticate(username, password):
