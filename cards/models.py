@@ -83,8 +83,10 @@ class User(db.Model):
         return self.id
 
 
-# Represents the various expansions, promotional releases, and collectors sets.
 class Set(db.Model):
+    """
+    Represents the various expansions, promotional releases, & collectors sets.
+    """
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(4), index=True)
     name = db.Column(db.String, index=True, unique=True)
@@ -113,8 +115,10 @@ class Set(db.Model):
         return '<Set {}>'.format(self.name)
 
 
-# Represents a specific, functionally-identical card.
 class Card(db.Model):
+    """
+    Represents a specific, functionally-identical card.
+    """
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), index=True, unique=True)
     color_byte = db.Column(db.SmallInteger)
@@ -224,8 +228,10 @@ class Card(db.Model):
         }
 
 
-# Represents a specific printing of a specific card.
 class Edition(db.Model):
+    """
+    Represents a specific printing of a specific card.
+    """
     id = db.Column(db.Integer, primary_key=True)
     multiverse_id = db.Column(db.Integer, index=True)
     collector_number = db.Column(db.String(4), index=True)  # Supports DFCs.

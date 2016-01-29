@@ -6,13 +6,13 @@ import re, requests
 BASE_REQUEST = 'https://api.deckbrew.com/mtg/cards'
 
 
-"""
-Searches DeckBrew for cards that match the specified name. If there is an exact
-match among the cards (e.g., the search was for "Shock", which returns a bunch
-of results as well as that specific card) return ONLY the exact match. If
-there's no exact match, return all of them.
-"""
 def find_card(name):
+    """
+    Searches DeckBrew for cards that match the specified name. If there is an
+    exact match among the cards (e.g., the search was for "Shock", which
+    returns a bunch of results as well as that specific card) return ONLY the
+    exact match. If there's no exact match, return all of them.
+    """
     cards = []
 
     name = name.lower().replace('aether', '\xe6ther')
@@ -93,20 +93,19 @@ def find_card(name):
     return cards
 
 
-"""
-Searches DeckBrew for cards matching the specified name and returns the
-matching name(s) only.
-"""
 def find_card_name(name):
+    """
+    Searches DeckBrew for cards matching the specified name and returns the
+    matching name(s) only.
+    """
     return [c.get('name') for c in find_card(name)]
 
 
-"""
-Searches a Wikipedia article using regular expressions (I know, I know...) to
-determine the release date of a given set.
-"""
 def release_date(set_name):
-
+    """
+    Searches a Wikipedia article using regular expressions (I know, I know...)
+    to determine the release date of a given set.
+    """
     set_name = set_name.replace(' "Timeshifted"', '')
     d = None
 

@@ -21,12 +21,12 @@ def index():
     return redirect(url_for('browse'))
 
 
-"""
-Browse collection alphabetically, or by set or release date.
-"""
 @app.route('/browse', methods=['GET', 'POST'])
 @login_required
 def browse():
+    """
+    Browse collection alphabetically, or by set or release date.
+    """
     user = g.user   # TODO: NOT USED.
 
     form = BrowseForm()
@@ -41,10 +41,6 @@ def browse():
 
     # TODO: Consider sending/receiving page numbers to keep queries shorter.
 
-#    cards = {
-#        group: [c.tuple(True) for c in editions]
-#        for group, editions in controller.fetch(filters, 'set').items()
-#    }
     cards = controller.fetch(filters, 'set')
     headers, submenu = build_submenu(filters)
 
@@ -53,12 +49,12 @@ def browse():
                            headers=headers, submenu=submenu, cards=cards)
 
 
-"""
-Search collection for a specific card.
-"""
 @app.route('/search')
 @login_required
 def search():
+    """
+    Search collection for a specific card.
+    """
     user = g.user   # TODO: NOT USED.
 
 
@@ -72,12 +68,12 @@ def search():
     return render_template("search.html", title=title, user=user)
 
 
-"""
-View card details.
-"""
 @app.route('/details', methods=['GET', 'POST'])
 @login_required
 def details():
+    """
+    View card details.
+    """
     user = g.user   # TODO: NOT USED.
 
     name = request.args.get('card')
@@ -112,14 +108,14 @@ def details():
                            card=card)
 
 
-"""
-Add a card to the database (or if it exists in the DB, simply update the number
-that you have/want). If you add a card that already exists, it will still set
-the want number and fetch and update all printings.
-"""
 @app.route('/add/card', methods=['GET', 'POST'])
 @login_required
 def add_card():
+    """
+    Add a card to the database (or if it exists in the DB, simply update the
+    number that you have/want). If you add a card that already exists, it will
+    still set the want number and fetch and update all printings.
+    """
     user = g.user
 
     cards = []
@@ -155,13 +151,13 @@ def add_card():
                            cards=cards)
 
 
-"""
-Adds a set/edition to the database. Should only be needed for sets that are
-recently announced (and that have no printings yet). Spoiler stuff.
-"""
 @app.route('/add/set')
 @login_required
 def add_set():
+    """
+    Adds a set/edition to the database. Should only be needed for sets that are
+    recently announced (and that have no printings yet). Spoiler stuff.
+    """
     user = g.user
 
 
@@ -174,12 +170,12 @@ def add_set():
     return render_template("set.html", title=title, user=user)
 
 
-"""
-Pulls all cards that exist in DeckBrew into the local database.
-"""
 @app.route('/update/database')
 @login_required
 def update_db():
+    """
+    Pulls all cards that exist in DeckBrew into the local database.
+    """
     user = g.user
 
 
@@ -194,12 +190,12 @@ def update_db():
     return render_template("update_db.html", title=title, user=user)
 
 
-"""
-Imports an existing collection from a CSV file.
-"""
 @app.route('/import')
 @login_required
 def import_csv():
+    """
+    Imports an existing collection from a CSV file.
+    """
     user = g.user
 
 
@@ -210,13 +206,13 @@ def import_csv():
     return render_template("import.html", title=title, user=user)
 
 
-"""
-Exports the card DB collection to a CSV file. (Only exports cards with "haves"
-or "wants".)
-"""
 @app.route('/export')
 @login_required
 def export_csv():
+    """
+    Exports the card DB collection to a CSV file. (Only exports cards with "haves"
+    or "wants".)
+    """
     user = g.user
 
 
@@ -227,11 +223,11 @@ def export_csv():
     return render_template("export.html", title=title, user=user)
 
 
-"""
-Logs the user in using LDAP authentication.
-"""
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Logs the user in using LDAP authentication.
+    """
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -281,13 +277,11 @@ def before_request():
     g.user = current_user
 
 
-"""
-Defines what sub-menu items will be displayed in the "Browse" submenu.
-"""
 def build_submenu(filters):
-    headers = [
-        'Card Name', 'Color', 'Type', 'Cost', 'H', 'W', 'N'
-    ]
+    """
+    Defines what sub-menu items will be displayed in the "Browse" submenu.
+    """
+    headers = ['Card Name', 'Color', 'Type', 'Cost', 'H', 'W', 'N']
 
     submenu =  [
         {
@@ -316,9 +310,8 @@ def build_submenu(filters):
             'items': [
                 {'label': label, 'active': label in filters['set']}
                 for label in [s.name for s in
-                    Set.query.order_by(Set.release_date.desc(), Set.name)]]
+                Set.query.order_by(Set.release_date.desc(), Set.name)]]
         },
     ]
 
     return headers, submenu
-

@@ -7,6 +7,24 @@ from cards.models import (
 )
 
 
+
+
+# Update function (on the details page) to fetch info for the current card from
+# deckbrew.
+
+# Update function should take a single card or a list of card names.
+
+# Update call on the main page that figures out which cards aren't from
+# deckbrew and updates all of them.
+# Any cards that aren't updated (because they still couldn't be found) show warning!
+
+
+# Ability to add cards that aren't in any db.
+# These cards should be displayed differently (italics?).
+
+
+
+
 RARITY = {
     'common': 'C',
     'uncommon': 'U',
@@ -29,16 +47,16 @@ CSV_COLUMNS = [
 ]
 
 
-"""
-Returns all cards matching the filters provided. If the optional group argument
-is specified, an OrderedDict grouping the results by the specified value will
-be returned instead of a list.
-
-filters: dict containing what column to filter and a list of valid values
-group: string to group results by "set", "color", or "type" (default None)
-sort: list of attributes to sort by (default release date and collector #)
-"""
 def fetch(filters=None, group=None, sort=None, page_size=None, page_number=1):
+    """
+    Returns all cards matching the filters provided. If the optional group
+    argument is specified, an OrderedDict grouping the results by the specified
+    value will be returned instead of a list.
+
+    filters: dict containing what column to filter and a list of valid values
+    group: string to group results by "set", "color", or "type" (default None)
+    sort: list of attributes to sort by (default release date and collector #)
+    """
     if filters is None:
         filters = {}
 
@@ -125,10 +143,10 @@ def fetch(filters=None, group=None, sort=None, page_size=None, page_number=1):
     return cards
 
 
-"""
-Adds a card to the database.
-"""
 def add_card(name, want=None, have=dict(), important=None, uncertain=None):
+    """
+    Adds a card to the database.
+    """
     card = deckbrew.find_card(name)
 
     if not card:
@@ -282,11 +300,18 @@ def add_card(name, want=None, have=dict(), important=None, uncertain=None):
         raise e
 
 
-"""
-Takes a file name (or open file?) and imports it using multiple calls to the
-add_card function.
-"""
+# TODO: If a set isn't in Deckbrew, create it anyway. We won't have all infor
+# for either the edition or the set that way, but...
+# TODO: Write update_set (which also updates the editions) which queries
+# deckbrew (and wikipedia for the date) to see if the set's been updated.
+
+
+
 def import_csv(file_name):
+    """
+    Takes a file name (or open file?) and imports it using multiple calls to the
+    add_card function.
+    """
     with open(file_name, 'r') as csv_file:
         reader = csv.reader(csv_file)
 

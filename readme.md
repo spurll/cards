@@ -1,4 +1,4 @@
-Card Collector
+jard Collector
 ==============
 
 A Python 3/Flask web program that keeps track of a Magic: The Gathering collection.
@@ -36,6 +36,7 @@ Feature Requests
 
 Short-term goals:
 
+* Add colourless mana symbol to static dir (probably {C})
 * Add cards
 * Increment function (takes card, set, and number default: 1); can decrement if passed -1
 * Ability to filter by rarity, certainty, and priority too
@@ -72,6 +73,8 @@ This project makes use of the [DeckBrew API](http://deckbrew.com/api/).
 License Information
 ===================
 
-Written by Gem Newman. [GitHub](https://github.com/spurll/) | [Blog](http://www.startleddisbelief.com) | [Twitter](https://twitter.com/spurll)
+Written by Gem Newman. [Website](http://spurll.com) | [GitHub](https://github.com/spurll/) | [Twitter](https://twitter.com/spurll)
 
-This work is licensed under Creative Commons [BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/).
+This work is licensed under Creative Commons [BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/).
+
+Remember: [GitHub is not my CV.](https://blog.jcoglan.com/2013/11/15/why-github-is-not-your-cv/)
