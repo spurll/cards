@@ -58,6 +58,11 @@ class User(db.Model):
     name = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(128), index=True)
 
+    # TODO: Each user has a collection!
+    # I think that means we need a collection object of some sort that relates
+    # cards and editions to each other...?
+    # No, probably just separate card/edition objects for each user.
+
     def __repr__(self):
         return '<User {}>'.format(self.id)
 

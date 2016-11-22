@@ -1,4 +1,4 @@
-jard Collector
+Card Collector
 ==============
 
 A Python 3/Flask web program that keeps track of a Magic: The Gathering collection.
@@ -21,12 +21,18 @@ Requirements
 Configuration
 -------------
 
-You'll need to create a `config.py` file, which specifies details such as which LDAP server to use. A sample configuration file can be found at `sample_config.py`.
+You'll need to create a `config.py` file, which specifies details such as which LDAP
+server to use. A sample configuration file can be found at `sample_config.py`.
 
 Starting the Server
 -------------------
 
-Start the server with `run.py`. By default it will be accessible at `localhost:9999`. To make the server world-accessible or for other options, see `run.py -h`.
+Start the server with `run.py`. By default it will be accessible at `localhost:9999`. To
+make the server world-accessible or for other options, see `run.py -h`.
+
+If you're having trouble configuring your sever, I wrote a
+[blog post](http://blog.spurll.com/2015/02/configuring-flask-uwsgi-and-nginx.html)
+explaining how you can get Flask, uWSGI, and Nginx working together.
 
 Bugs and Feature Requests
 =========================
@@ -36,7 +42,6 @@ Feature Requests
 
 Short-term goals:
 
-* Add colourless mana symbol to static dir (probably {C})
 * Add cards
 * Increment function (takes card, set, and number default: 1); can decrement if passed -1
 * Ability to filter by rarity, certainty, and priority too
@@ -48,6 +53,7 @@ Short-term goals:
 
 Long-term goals (features that may be implemented in the future):
 
+* Display for narrow screens (phones)
 * "Add Set" searches the set and adds all cards with `add_card` (can be set to add only uncommons+, rares+, etc.; by default doesn't add basic land)
 * Ability to delete a card (wholesale) from the DB (takes all editions with it)
 * Ability to add cards that are not yet listed in DeckBrew or on MagicCards.info (spoiler cards)
@@ -61,8 +67,8 @@ Known Bugs
 ----------
 
 * There's still a problem in the HTML that causes the page to be slightly too tall (so it scrolls a little even when it shouldn't)
-* TCGPlayer killed DeckBrew integration, so prices are all gone. Should still be able to scrape pages from the DeckBrew `store_url` field (such as http://shop.tcgplayer.com/magic/mirrodin/lightning-greaves)
-* Currently all users share the same collection (might not be worth fixing)
+* \[Fixed?\] TCGPlayer killed DeckBrew integration, so prices are all gone. Should still be able to scrape pages from the DeckBrew `store_url` field (such as http://shop.tcgplayer.com/magic/mirrodin/lightning-greaves)
+* \[Fix in progress\] Currently all users share the same collection (might not be worth fixing)
 * It's possible that very common, short names won't return results when `api.find_card` is called (because DeckBrew will only return the first 100 items, and the one we're looking for might not be in the list)
 
 DeckBrew API

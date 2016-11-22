@@ -2,77 +2,67 @@
     <head>
 		<title>{% if title %}{{title}} | {% endif %}Card Collector</title>
 
-		<style type="text/css">
-			.window { margin: auto; width: 1000px; }
-			.full { margin: auto; width: 400px; }
-			.content { overflow-y: auto; width: 790px; height: 100%; display: inline-block; vertical-align: top; }
-			.subcontent { overflow-y: auto; width: 590px; height: 100%; display: inline-block; vertical-align: top; }
-
-			.sidebar { overflow-y: auto; height: 100%; width: 200px; display: inline-block; vertical-align: top; }
-
-			.title { font-variant: small-caps; font-size: 150%; text-align: center; padding-top: 5px; padding-bottom: 10px; margin: auto; height: 30px; width: 100% }
-			.heading { font-variant: small-caps; font-weight: bold; }
-			.user { text-align: right; position: fixed; width: 20%; right: 20px; top: 30px; }
-			.messages { font-style: italic; text-align: center; }
-
-			a:link { text-decoration: none; color: #aaaaaa; }
-			a:visited { text-decoration: none; color: #aaaaaa; }
-			a:hover { text-decoration: none; color: #ffffff; }
-			a:active { text-decoration: none; color: #aaaaaa; }
-
-			.section { padding-bottom: 15px; }
-			.active { font-weight: bold; color: #dddddd !important; }
-			.center { text-align: center; }
-
-			.important { font-weight: bold; }
-			.uncertain { font-style: italic; }
-
-			.mana { height: 15px; }
-			.mana img { height: 100%; width: auto; }
-
-			.card_image { height: 300px; }
-			.card_image img { height: 100%; width: auto; }
-
-			.wide { width: 65%; top: 0px; }
-			.narrow { width: 35%; top: 0px; }
-			.right { float: right; text-align: right; }
-
-			body { font-family: serif; color: #ffffff; background-color: #222222; margin: 20px 30px; }
-			p { margin: 5px; }
-			table { margin-top: 5px; margin-bottom: 10px; }
-			th { font-variant: small-caps; padding: 0px 10px; }
-			td { padding: 0px 10px; }
-
-			form { margin: 0px; }
-			input[type="number"] { width: 35px; text-align: right; }
-			input[type="text"] { width: 100%; }
-			input[type="password"] { width: 100%; }
-			input { color: #000000; }
-		</style>
+		<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}"/>
 		<link rel="shortcut icon" href="{{url_for('static', filename='icon.png')}}"/>
-		<script type="text/javascript" src="{{url_for('static', filename='jquery-2.1.1.js')}}"></script>
+
+		<script type="text/javascript" src="{{url_for('static', filename='jquery-3.1.0.min.js')}}"></script>
+
+		<script>
+			// TODO: Fix this so that it works properly.
+			$(document).ready(function() {
+				resizeContent();
+				resizeBuffer();
+			});
+
+			$(window).resize(function() {
+				resizeBuffer();
+			});
+
+			function resizeBuffer() {
+				// Resizes the title buffer which pushes content down below the floating title bar.
+				$('#title-buffer').height($('#title-bar').outerHeight());
+			}
+
+			function resizeContent() {
+				if ($(window).width() < 500) {
+					// Moves and resizes the links and login information information on a smaller screen.
+					$('#links').css({'width': 'auto', 'margin': 'auto', 'float': 'none', 'text-align': 'center', 'padding': '2px'});
+					$('#user').css({'width': 'auto', 'margin': 'auto', 'float': 'none', 'text-align': 'center', 'padding': '2px'});
+					$('#title').css({'padding': '2px'});
+				}
+			}
+		</script>
     </head>
 
 	<body>
-		{% if user %}
-			<div class="user">
-				Logged in as {{user.name}}. <a href="{{ url_for('logout') }}">Log out.</a>
-			</div>
-		{% endif %}
-
-		<div class="title">{{title}}</div>
-
-		{% with messages = get_flashed_messages() %}
-			<div class="messages">
-				{% if messages %}
-					{% for message in messages %}
-						<p>{{ message }}</p>
-					{% endfor %}
+		<div id="title-buffer"></div>
+		<div id="title-bar">
+			<div id="links">
+				{% if link %}
+				<a href="{{link['url']}}">{{link['text']}}</a>
 				{% endif %}
 			</div>
+
+			<div id="user">
+				{% if user %}
+				Logged in as {{user.name}}. <a href="{{ url_for('logout') }}">Log out.</a>
+				{% endif %}
+			</div>
+
+			<div id="title">{{title}}</div>
+		</div>
+
+		{% with messages = get_flashed_messages() %}
+		<div class="messages">
+			{% if messages %}
+			{% for message in messages %}
+			<p>{{ message }}</p>
+			{% endfor %}
+			{% endif %}
+		</div>
 		{% endwith %}
 
-		<div class="window">
+		<div id="content">
 			{% block content %}
 			{% endblock %}
 		</div>
