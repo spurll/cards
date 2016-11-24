@@ -1,8 +1,4 @@
-# Written by Gem Newman. This work is licensed under a Creative Commons         
-# Attribution-NonCommercial-ShareAlike 3.0 Unported License.                    
-
-
-from flask import render_template, flash, redirect, session, url_for, request, g
+from flask import render_template, flash, redirect, session, url_for, request
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from wtforms import BooleanField
 from wtforms.fields.html5 import IntegerField
@@ -27,8 +23,6 @@ def browse():
     """
     Browse collection alphabetically, or by set or release date.
     """
-    user = g.user   # TODO: NOT USED.
-
     form = BrowseForm()
 
     filters = {
@@ -41,12 +35,13 @@ def browse():
 
     # TODO: Consider sending/receiving page numbers to keep queries shorter.
 
-    cards = controller.fetch(filters, 'set')
+    cards = controller.fetch(current_user, filters, 'set')
     headers, submenu = build_submenu(filters)
 
-    title = 'Browse Collection'
-    return render_template('browse.html', title=title, user=user, form=form,
-                           headers=headers, submenu=submenu, cards=cards)
+    return render_template(
+        "browse.html", title="Browse", user=current_user, form=form,
+        headers=headers, submenu=submenu, cards=cards
+    )
 
 
 @app.route('/search')
@@ -55,8 +50,6 @@ def search():
     """
     Search collection for a specific card.
     """
-    user = g.user   # TODO: NOT USED.
-
 
     # CODE HERE
 
@@ -64,8 +57,7 @@ def search():
     # the top.
 
 
-    title = "Search Collection"
-    return render_template("search.html", title=title, user=user)
+    return render_template("search.html", title="Search", user=current_user)
 
 
 @app.route('/details', methods=['GET', 'POST'])
@@ -74,15 +66,14 @@ def details():
     """
     View card details.
     """
-    user = g.user   # TODO: NOT USED.
-
     name = request.args.get('card')
     if not name:
         flash('No card specified.')
         return redirect(url_for('index'))
 
     # TODO: Add link to MagicCards.info.
-    card = Card.query.filter(Card.name == name).scalar().details(True)
+    # TODO: Should be done via controller, not direct DB access!
+    card = current_user.cards.filter(Card.name == name).scalar().details(True)
 
     if not card:
         flash('No details for {} found in the database.'.format(name))
@@ -102,10 +93,10 @@ def details():
                              validators=[NumberRange(min=0)], label='Have')
         setattr(CurrentDetailsForm, edition['set'], field)
 
-    form = CurrentDetailsForm()
-    title = card['name']
-    return render_template("details.html", title=title, user=user, form=form,
-                           card=card)
+    return render_template(
+        "details.html", title=card['name'], user=current_user,
+        form=CurrentDetailsForm(), card=card
+    )
 
 
 @app.route('/add/card', methods=['GET', 'POST'])
@@ -116,8 +107,6 @@ def add_card():
     number that you have/want). If you add a card that already exists, it will
     still set the want number and fetch and update all printings.
     """
-    user = g.user
-
     cards = []
 
     # First, you enter a card name (and numeric field for how many you want).
@@ -134,7 +123,9 @@ def add_card():
             else:
                 # Success! Exactly one card was found! Add it, then redirect.
                 try:
-                    controller.add_card(cards[0], want=form.want.data)
+                    controller.add_card(
+                        current_user, cards[0], want=form.want.data
+                    )
                     return redirect(url_for('details', card=cards[0]))
 
                 except Exception as e:
@@ -146,9 +137,9 @@ def add_card():
 
     # If you're here, either you haven't specified a card to add yet, or you're
     # selecting a card from among a list of possible matches.
-    title = "Add Card"
-    return render_template("add.html", title=title, user=user, form=form,
-                           cards=cards)
+    return render_template(
+        "add.html", title="Add Card", user=current_user, form=form, cards=cards
+    )
 
 
 @app.route('/add/set')
@@ -158,16 +149,13 @@ def add_set():
     Adds a set/edition to the database. Should only be needed for sets that are
     recently announced (and that have no printings yet). Spoiler stuff.
     """
-    user = g.user
-
 
     # CODE HERE
 
     # We'll need some way to update information after printings and additional
     # details are available.
 
-    title = card.name
-    return render_template("set.html", title=title, user=user)
+    return render_template("set.html", title=card.name, user=current_user)
 
 
 @app.route('/update/database')
@@ -176,8 +164,6 @@ def update_db():
     """
     Pulls all cards that exist in DeckBrew into the local database.
     """
-    user = g.user
-
 
     # CODE HERE
 
@@ -187,7 +173,9 @@ def update_db():
 
 
     title = "Update Database"
-    return render_template("update_db.html", title=title, user=user)
+    return render_template(
+        "update_db.html", title="Update Database", user=current_user
+    )
 
 
 @app.route('/import')
@@ -196,14 +184,12 @@ def import_csv():
     """
     Imports an existing collection from a CSV file.
     """
-    user = g.user
-
 
     # CODE HERE
 
-
-    title = "Import Collection from CSV"
-    return render_template("import.html", title=title, user=user)
+    return render_template(
+        "import.html", title="Import Collection from CSV", user=current_user
+    )
 
 
 @app.route('/export')
@@ -213,14 +199,12 @@ def export_csv():
     Exports the card DB collection to a CSV file. (Only exports cards with "haves"
     or "wants".)
     """
-    user = g.user
-
 
     # CODE HERE
 
-
-    title = "Export Collection to CSV"
-    return render_template("export.html", title=title, user=user)
+    return render_template(
+        "export.html", title="Export Collection to CSV", user=current_user
+    )
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -228,7 +212,7 @@ def login():
     """
     Logs the user in using LDAP authentication.
     """
-    if g.user is not None and g.user.is_authenticated:
+    if current_user is not None and current_user.is_authenticated:
         return redirect(url_for('index'))
 
     form = LoginForm()
@@ -237,14 +221,9 @@ def login():
         return render_template('login.html', title="Log In", form=form)
 
     if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-
-        print('Logging in...')
-        user = authenticate(username, password)
+        user = authenticate(form.username.data, form.password.data)
 
         if not user:
-            print('Login failed.')
             flash('Login failed.')
             return render_template('login.html', title="Log In", form=form)
 
@@ -270,11 +249,6 @@ def logout():
 @lm.user_loader
 def load_user(id):
     return User.query.get(id)
-
-
-@app.before_request
-def before_request():
-    g.user = current_user
 
 
 def build_submenu(filters):

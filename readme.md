@@ -17,12 +17,17 @@ Requirements
 * ldap3
 * beautifulsoup4
 * python-dateutil
+* dryscrape
 
 Configuration
 -------------
 
 You'll need to create a `config.py` file, which specifies details such as which LDAP
 server to use. A sample configuration file can be found at `sample_config.py`.
+
+If you're having problems installing dryscrape (or its webkit requirement), I found [this
+page](https://github.com/thoughtbot/capybara-webkit/wiki/Installing-Qt-and-compiling-capybara-webkit#macos-sierra-1012)
+helpful for troubleshooting.
 
 Starting the Server
 -------------------
@@ -68,7 +73,6 @@ Known Bugs
 
 * There's still a problem in the HTML that causes the page to be slightly too tall (so it scrolls a little even when it shouldn't)
 * \[Fixed?\] TCGPlayer killed DeckBrew integration, so prices are all gone. Should still be able to scrape pages from the DeckBrew `store_url` field (such as http://shop.tcgplayer.com/magic/mirrodin/lightning-greaves)
-* \[Fix in progress\] Currently all users share the same collection (might not be worth fixing)
 * It's possible that very common, short names won't return results when `api.find_card` is called (because DeckBrew will only return the first 100 items, and the one we're looking for might not be in the list)
 
 DeckBrew API

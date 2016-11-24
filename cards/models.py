@@ -44,6 +44,10 @@ MCI_CODES = {
     'Champs and States': 'cp'
 }
 
+DECKBREW_IMAGE = 'https://image.deckbrew.com/mtg/multiverseid/{}.jpg'
+DECKBREW_URL = 'https://api.deckbrew.com/mtg/cards?multiverseid={}'
+MCI_URL = 'http://magiccards.info/{}/en/{}.html'
+
 
 def byte_to_set(mask, b):
     return {key for key, value in mask.items() if (value & b)}
@@ -58,10 +62,15 @@ class User(db.Model):
     name = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(128), index=True)
 
-    # TODO: Each user has a collection!
-    # I think that means we need a collection object of some sort that relates
-    # cards and editions to each other...?
-    # No, probably just separate card/edition objects for each user.
+    sets = db.relationship(
+        'Set', backref='user', lazy='dynamic', cascade='all, delete-orphan'
+    )
+    editions = db.relationship(
+        'Edition', backref='user', lazy='dynamic', cascade='all, delete-orphan'
+    )
+    cards = db.relationship(
+        'Card', backref='user', lazy='dynamic', cascade='all, delete-orphan'
+    )
 
     def __repr__(self):
         return '<User {}>'.format(self.id)
@@ -96,8 +105,12 @@ class Set(db.Model):
     code = db.Column(db.String(4), index=True)
     name = db.Column(db.String, index=True, unique=True)
     release_date = db.Column(db.Date)
-    cards = db.relationship('Edition', backref='set', lazy='dynamic',
-                            cascade='all, delete-orphan')
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    editions = db.relationship(
+        'Edition', backref='set', lazy='dynamic', cascade='all, delete-orphan'
+    )
 
     def __repr__(self):
         return '<Set {}>'.format(self.code)
@@ -134,8 +147,12 @@ class Card(db.Model):
     want = db.Column(db.Integer, default=0)
     important = db.Column(db.Boolean, default=False)
     uncertain = db.Column(db.Boolean, default=False)
-    editions = db.relationship('Edition', backref='card', lazy='dynamic',
-                               cascade='all, delete-orphan')
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    editions = db.relationship(
+        'Edition', backref='card', lazy='dynamic', cascade='all, delete-orphan'
+    )
 
     def __repr__(self):
         return '<Card {}>'.format(self.name)
@@ -241,9 +258,11 @@ class Edition(db.Model):
     multiverse_id = db.Column(db.Integer, index=True)
     collector_number = db.Column(db.String(4), index=True)  # Supports DFCs.
     rarity = db.Column(db.String(1))
+    have = db.Column(db.Integer, default=0)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'))
     set_id = db.Column(db.Integer, db.ForeignKey('set.id'))
-    have = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return '<Edition {} ({})>'.format(self.card.name, self.set.code)
@@ -253,18 +272,15 @@ class Edition(db.Model):
 
     @property
     def image_url(self):
-        return ('https://image.deckbrew.com/mtg/multiverseid/{}.jpg'
-                .format(self.multiverse_id))
+        return DECKBREW_IMAGE.format(self.multiverse_id)
 
     @property
     def deckbrew_url(self):
-        return ('https://api.deckbrew.com/mtg/cards?multiverseid={}'
-                .format(self.multiverse_id))
+        return DECKBREW_URL.format(self.multiverse_id)
 
     @property
     def mci_url(self):
-        return ('http://magiccards.info/{}/en/{}.html'
-                .format(self.set.mci_code, self.collector_number))
+        return MCI_URL.format(self.set.mci_code, self.collector_number)
 
     @property
     def price(self):

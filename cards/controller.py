@@ -7,24 +7,6 @@ from cards.models import (
 )
 
 
-
-
-# Update function (on the details page) to fetch info for the current card from
-# deckbrew.
-
-# Update function should take a single card or a list of card names.
-
-# Update call on the main page that figures out which cards aren't from
-# deckbrew and updates all of them.
-# Any cards that aren't updated (because they still couldn't be found) show warning!
-
-
-# Ability to add cards that aren't in any db.
-# These cards should be displayed differently (italics?).
-
-
-
-
 RARITY = {
     'common': 'C',
     'uncommon': 'U',
@@ -47,11 +29,13 @@ CSV_COLUMNS = [
 ]
 
 
-def fetch(filters=None, group=None, sort=None, page_size=None, page_number=1):
+def fetch(
+    user, filters=None, group=None, sort=None, page_size=None, page_number=1
+):
     """
-    Returns all cards matching the filters provided. If the optional group
-    argument is specified, an OrderedDict grouping the results by the specified
-    value will be returned instead of a list.
+    Returns all of the user's cards matching the filters provided. If the
+    optional group argument is specified, an OrderedDict grouping the results
+    by the specified value will be returned instead of a list.
 
     filters: dict containing what column to filter and a list of valid values
     group: string to group results by "set", "color", or "type" (default None)
@@ -64,7 +48,7 @@ def fetch(filters=None, group=None, sort=None, page_size=None, page_number=1):
         sort = [Set.release_date.desc(), Edition.collector_number, Card.name]
 
     # Define query and filters.
-    query = Edition.query.join(Card).join(Set)
+    query = user.editions.join(Card).join(Set)
     where = []
 
     if filters.get('color'):
@@ -143,9 +127,11 @@ def fetch(filters=None, group=None, sort=None, page_size=None, page_number=1):
     return cards
 
 
-def add_card(name, want=None, have=dict(), important=None, uncertain=None):
+def add_card(
+    user, name, want=None, have=dict(), important=None, uncertain=None
+):
     """
-    Adds a card to the database.
+    Adds a card to the user's database.
     """
     card = deckbrew.find_card(name)
 
@@ -194,7 +180,7 @@ def add_card(name, want=None, have=dict(), important=None, uncertain=None):
             )
             continue
 
-        s = Set.query.filter(Set.name == edition['set']).scalar()
+        s = user.sets.filter(Set.name == edition['set']).scalar()
 
         if not s:
             # Build the necessary Set object.
@@ -206,7 +192,7 @@ def add_card(name, want=None, have=dict(), important=None, uncertain=None):
             )
 
         # Second, find and/or build the necessary Edition objects.
-        e = Edition.query.join(Set).join(Card).filter(
+        e = user.editions.join(Set).join(Card).filter(
             (Set.name == edition['set']) & (Card.name == card['name'])
         ).scalar()
 
@@ -237,29 +223,40 @@ def add_card(name, want=None, have=dict(), important=None, uncertain=None):
         editions.add(e)
 
     # Finally, find and/or build the Card object.
-    c = Card.query.filter(Card.name == card['name']).scalar()
+    c = user.cards.filter(Card.name == card['name']).scalar()
 
     if c:
         # Update fields in the Card object if necessary.
         if (want is not None) and (c.want != want):
-            print('Updating number of {} wanted from {} to {}.'
-                  .format(card['name'], c.want, want))
+            print(
+                'Updating number of {} wanted from {} to {}.'.format(
+                    card['name'], c.want, want
+                )
+            )
             c.want = want
 
         if (important is not None) and (c.important != important):
-            print('Marking {} as {}important.'
-                  .format(card['name'], 'not ' if not important else ''))
+            print(
+                'Marking {} as {}important.'.format(
+                    card['name'], 'not ' if not important else ''
+                )
+            )
             c.important = important
 
         if (uncertain is not None) and (c.uncertain != uncertain):
-            print('Setting number of {} in collection to {}certain.'
-                  .format(card['name'], 'un' if uncertain else ''))
+            print(
+                'Setting number of {} in collection to {}certain.'.format(
+                    card['name'], 'un' if uncertain else ''
+                )
+            )
             c.uncertain = uncertain
 
         # Attach the Edition objects to the Card object.
         c.editions = editions
         # If we previously had editions that don't exist in DeckBrew now...?
         # TODO: What does the above comment mean?
+        # Probably means an edition was added manually before the edition was
+        # in DeckBrew (presumably because it was leaked info about a new set)
 
     else:
         # Build the necessary Card object.
@@ -291,7 +288,8 @@ def add_card(name, want=None, have=dict(), important=None, uncertain=None):
 
     # Add and commit to DB.
     try:
-        db.session.add(c)
+        user.cards.add(c)
+        #db.session.add(c)
         db.session.commit()
     except Exception as e:
         print('Error: Unable to issue database commit: {}\nRolling back...'
@@ -307,7 +305,7 @@ def add_card(name, want=None, have=dict(), important=None, uncertain=None):
 
 
 
-def import_csv(file_name):
+def import_csv(user, file_name):
     """
     Takes a file name (or open file?) and imports it using multiple calls to the
     add_card function.
@@ -334,7 +332,7 @@ def import_csv(file_name):
 
         print('Importing {} {} {} {} {}'
               .format(card, want, have, important, uncertain))
-        add_card(card, want, have, important, uncertain)
+        add_card(user, card, want, have, important, uncertain)
 
 
 def export_csv(f):

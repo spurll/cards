@@ -84,9 +84,6 @@ tfoot {
 .heading {
 	font-variant: small-caps;
 	text-align: center;
-	font-size: 150%;
-	padding-top: 5px;
-	padding-bottom: 10px;
 }
 
 .messages { font-style: italic; text-align: center; }
@@ -98,9 +95,10 @@ tfoot {
 
 /* This section will need an overhaul. Display: inline-block? Ugh! */
 .full { margin: auto; width: 400px; }
-.formerly-called-content { overflow-y: auto; width: 790px; height: 100%; display: inline-block; vertical-align: top; }
-.subcontent { overflow-y: auto; width: 590px; height: 100%; display: inline-block; vertical-align: top; }
-.sidebar { overflow-y: auto; height: 100%; width: 200px; display: inline-block; vertical-align: top; }
+.formerly-called-content { overflow-y: auto; max-width: 790px; height: 100%; display: inline-block; vertical-align: top; }
+.subcontent { overflow-y: auto; max-width: 590px; height: 100%; display: inline-block; vertical-align: top; }
+.sidebar { overflow-y: auto; height: 100%; max-width: 180px; padding-right: 10px; display: inline-block; vertical-align: top; }
+/* The height=100% is a problem, because it's still pushed down by the title buffer at the top. */
 /* Also, remember to update whatever "content" was called. */
 
 .active { font-weight: bold; color: #dddddd !important; }
